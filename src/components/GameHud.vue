@@ -18,9 +18,9 @@ defineEmits<{
 <template>
   <div class="pointer-events-none absolute inset-x-0 top-10 z-10 px-3">
     <div class="flex items-center justify-between gap-3">
-      <div class="flex flex-col">
-        <span class="text-white text-xl font-black">NIVEL {{ level }}</span>
-        <span class="text-white text-xl font-black">PUNTOS {{ score }}</span>
+      <div class="flex flex-col drop-shadow-xl">
+        <span class="text-white text-xl font-black [ text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000 ]">NIVEL {{ level }}</span>
+        <span class="text-white text-xl font-black [ text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000 ]">PUNTOS {{ score }}</span>
       </div>
 
       <div class="flex items-center gap-2 px-3 py-2">
@@ -46,7 +46,7 @@ defineEmits<{
       </div>
     </div>
 
-    <div class="absolute right-3 top-30 z-20 -translate-y-1/2 pointer-events-auto">
+    <div class="absolute right-3 top-32 z-20 -translate-y-1/2 pointer-events-auto">
       <button
         class="ability-button"
         :class="abilityUsesRemaining > 0 ? (isAbilityArming ? 'ability-button-arming' : 'ability-button-ready') : 'ability-button-spent'"

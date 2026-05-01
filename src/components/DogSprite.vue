@@ -57,7 +57,7 @@ const showHitShake = computed(() => props.hitFlash > 0)
       :class="{ 'dog-hit-shake': showHitShake }"
     >
       <div
-        class="dog-idle h-full w-full bg-contain bg-center bg-no-repeat"
+        class="dog-idle h-full w-full bg-contain bg-center bg-no-repeat drop-shadow-xl"
         style="background-image: url('images/dog.png')"
       />
     </div>

@@ -12,12 +12,12 @@
 html,
 body,
 #app {
-  min-height: 100dvh;
+  height: 100vh;
 }
 
 body {
   /*min-width: 320px;*/
-  min-height: 100dvh;
+  height: 100vh;
   margin: 0;
   overscroll-behavior: none;
   touch-action: manipulation;

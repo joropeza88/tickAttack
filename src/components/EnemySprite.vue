@@ -39,7 +39,7 @@ const enemyClasses = computed(() => ({
     </div>
 
     <div
-      class="h-full w-full drop-shadow-md"
+      class="h-full w-full drop-shadow-xl"
       :class="enemyClasses"
       :style="{
         backgroundImage: enemyImage,
