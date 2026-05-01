@@ -47,6 +47,8 @@ export interface EnemyEntity {
   stateTimeLeftMs: number
   tapFeedbackTimeLeftMs: number
   buffs: EnemyBuffState
+  spawnDriftTimeLeftMs: number
+  spawnDriftVelocityX: number
   swerveDelayMs: number
   swerveTimeLeftMs: number
   swerveVelocityX: number

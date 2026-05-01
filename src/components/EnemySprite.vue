@@ -19,6 +19,14 @@ const enemyClasses = computed(() => ({
   'tick-crushed': props.enemy.state === 'crushed',
   'enemy-hit': props.enemy.state === 'falling' && props.enemy.tapFeedbackTimeLeftMs > 0
 }))
+
+const showPartialSplat = computed(
+  () =>
+    props.enemy.state === 'falling' &&
+    props.enemy.tapFeedbackTimeLeftMs > 0 &&
+    props.enemy.tapsRequired > 1 &&
+    props.enemy.tapsTaken > 0
+)
 </script>
 
 <template>
@@ -36,6 +44,20 @@ const enemyClasses = computed(() => ({
       class="absolute inset-0 -z-10"
     >
       <div class="enemy-splat absolute left-1/2 top-[60%]" />
+    </div>
+
+    <div
+      v-if="enemy.state === 'crushed'"
+      class="score-pop pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 text-border"
+    >
+      {{ `x${enemy.scoreValue}` }}
+    </div>
+
+    <div
+      v-else-if="showPartialSplat"
+      class="absolute inset-0 -z-10"
+    >
+      <div class="enemy-splat enemy-splat-soft absolute left-1/2 top-[60%]" />
     </div>
 
     <div

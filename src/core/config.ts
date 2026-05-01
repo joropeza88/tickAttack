@@ -38,13 +38,13 @@ export const GAME_CONFIG = {
     },
     worker: {
       speed: 150,
-      scoreValue: 1,
+      scoreValue: 3,
       tapsRequired: 1,
       size: { width: 30, height: 30 } satisfies Size
     },
     mother: {
       speed: 50,
-      scoreValue: 4,
+      scoreValue: 6,
       tapsRequired: 3,
       minLevel: 5,
       size: { width: 56, height: 56 } satisfies Size,
@@ -67,8 +67,8 @@ export const GAME_CONFIG = {
         horizontalSpeedMultiplier: 0.52,
         durationMinMs: 260,
         durationMaxMs: 620,
-        delayMinMs: 180,
-        delayMaxMs: 900
+        delayMinMs: 500,
+        delayMaxMs: 1500
       },
       armor: {
         chanceBase: 0.028,
@@ -84,6 +84,8 @@ export const GAME_CONFIG = {
     crushedDurationMs: 260,
     hitFeedbackDurationMs: 170,
     childSpawnSpread: 18,
+    childSpawnDriftDurationMs: 320,
+    childSpawnDriftVelocityX: 82,
     despawnOffset: 120
   },
   viewport: {

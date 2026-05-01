@@ -18,10 +18,10 @@ defineEmits<{
 <template>
   <div class="pointer-events-none absolute inset-x-0 top-10 z-10 px-3">
     <div class="flex items-center justify-between gap-3">
-      <div class="flex flex-col drop-shadow-xl">
-        <span class="text-white text-xl font-black [ text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000 ]">NIVEL {{ level }}</span>
-        <span class="text-white text-xl font-black [ text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000 ]">PUNTOS {{ score }}</span>
-      </div>
+      <span class="text-border text-white text-xl leading-none font-black">
+          NIVEL {{ level }} <br/>
+          PUNTOS {{ score }}
+      </span>
 
       <div class="flex items-center gap-2 px-3 py-2">
         <div
@@ -56,7 +56,7 @@ defineEmits<{
         <img
           src="/images/raid.png"
           alt="Insecticida"
-          class="ability-button-image drop-shadow-md"
+          class="ability-button-image drop-shadow-xl"
         >
       </button>
     </div>

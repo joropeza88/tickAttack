@@ -12,6 +12,7 @@ import { usePublicAssetPreloader } from '@/composables/usePublicAssetPreloader'
 const { containerRef, snapshot, isRunning, restart, start, tapAt, deployGasCloudAt } = useGame()
 const crySound = typeof Audio !== 'undefined' ? new Audio('sounds/cry.wav') : null
 const biteSound = typeof Audio !== 'undefined' ? new Audio('sounds/bite.mp3') : null
+const bangSound = typeof Audio !== 'undefined' ? new Audio('sounds/bang.mp3') : null
 const crushSound = typeof Audio !== 'undefined' ? new Audio('sounds/crush.mp3') : null
 const spraySound = typeof Audio !== 'undefined' ? new Audio('sounds/spray.mp3') : null
 const musicSound = typeof Audio !== 'undefined' ? new Audio('sounds/music.mp3') : null
@@ -37,6 +38,10 @@ if (biteSound) {
   biteSound.preload = 'auto'
 }
 
+if (bangSound) {
+  bangSound.preload = 'auto'
+}
+
 if (crushSound) {
   crushSound.preload = 'auto'
   crushSound.volume = 0.75
@@ -50,7 +55,8 @@ if (spraySound) {
 if (musicSound) {
   musicSound.preload = 'auto'
   musicSound.loop = true
-  musicSound.volume = 0.45
+  musicSound.volume = 0
+  //0.45
 }
 
 const {
@@ -63,7 +69,7 @@ const {
 } = usePublicAssetPreloader({
   enabled: GAME_CONFIG.loading.preloadPublicAssetsBeforeStart,
   imageUrls: GAME_CONFIG.loading.publicAssetUrls,
-  audioElements: [crySound, biteSound, crushSound, spraySound, musicSound]
+  audioElements: [crySound, biteSound, bangSound, crushSound, spraySound, musicSound]
 })
 
 const startBackgroundMusic = async () => {
@@ -137,6 +143,11 @@ const onViewportPointerDown = (event: PointerEvent) => {
   if (resolution.killed && crushSound) {
     crushSound.currentTime = 0
     void crushSound.play().catch(() => {})
+  }
+
+  if (resolution.hit && !resolution.killed && bangSound) {
+    bangSound.currentTime = 0.2
+    void bangSound.play().catch(() => {})
   }
 }
 
@@ -272,6 +283,11 @@ onBeforeUnmount(() => {
   if (crushSound) {
     crushSound.pause()
     crushSound.currentTime = 0
+  }
+
+  if (bangSound) {
+    bangSound.pause()
+    bangSound.currentTime = 0
   }
 
   if (spraySound) {

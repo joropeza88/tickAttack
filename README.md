@@ -70,21 +70,22 @@ El proyecto ya incluye `.gitignore` para evitar subir artefactos generados como 
 
 Musica de fondo:
 
-- Autor: bluelike_u 
+Autor: bluelike_u 
 - Perfil: https://pixabay.com/es/users/bluelike_u-24430674/
 - Music: 1 Popcorn | Cute BGM
 
 Efectos de sonido:
 
-- Autor: floraphonic 
+Autor: floraphonic 
 - Perfil: https://pixabay.com/es/users/floraphonic-38928062/
 - Sound: Goopy Slime 20
 
-- Autor: freesound_community 
+Autor: freesound_community 
 - Perfil: https://pixabay.com/es/users/freesound_community-46691455/
 - Sound: Spray
+- Sound: Golpe en madera
 
-- Autor: freesounds123 
+Autor: freesounds123 
 - Perfil: https://pixabay.com/es/users/freesounds123-49985424/
 - Sound: Crunchy Bite 2
 

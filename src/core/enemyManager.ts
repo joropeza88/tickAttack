@@ -62,6 +62,7 @@ export class EnemyManager {
       }
 
       enemy.position.y += enemy.currentSpeed * deltaSeconds
+      this.updateSpawnDrift(enemy, deltaMs, options.viewport, deltaSeconds)
       this.updateSwerve(enemy, deltaMs, options.viewport, deltaSeconds)
 
       if (enemy.position.y > options.viewport.height + GAME_CONFIG.enemy.despawnOffset) {
@@ -185,6 +186,20 @@ export class EnemyManager {
     enemy.position.x = this.clampEnemyX(enemy.position.x, enemy.size.width, viewport.width)
   }
 
+  private updateSpawnDrift(enemy: EnemyEntity, deltaMs: number, viewport: ViewportBounds, deltaSeconds: number): void {
+    if (enemy.spawnDriftTimeLeftMs <= 0 || enemy.spawnDriftVelocityX === 0) {
+      return
+    }
+
+    enemy.spawnDriftTimeLeftMs = Math.max(0, enemy.spawnDriftTimeLeftMs - deltaMs)
+    enemy.position.x += enemy.spawnDriftVelocityX * deltaSeconds
+    enemy.position.x = this.clampEnemyX(enemy.position.x, enemy.size.width, viewport.width)
+
+    if (enemy.spawnDriftTimeLeftMs <= 0) {
+      enemy.spawnDriftVelocityX = 0
+    }
+  }
+
   private spawn({ level, viewport }: SpawnOptions): void {
     const type = this.chooseSpawnType(level, arguments[0].chanceMultiplier)
     const enemy = this.createEnemy(type, viewport)
@@ -233,6 +248,8 @@ export class EnemyManager {
       stateTimeLeftMs: 0,
       tapFeedbackTimeLeftMs: 0,
       buffs: createBuffState(),
+      spawnDriftTimeLeftMs: 0,
+      spawnDriftVelocityX: 0,
       swerveDelayMs: 0,
       swerveTimeLeftMs: 0,
       swerveVelocityX: 0
@@ -250,6 +267,8 @@ export class EnemyManager {
     enemy.stateTimeLeftMs = 0
     enemy.tapFeedbackTimeLeftMs = 0
     enemy.buffs = createBuffState()
+    enemy.spawnDriftTimeLeftMs = 0
+    enemy.spawnDriftVelocityX = 0
     enemy.swerveDelayMs = 0
     enemy.swerveTimeLeftMs = 0
     enemy.swerveVelocityX = 0
@@ -311,6 +330,9 @@ export class EnemyManager {
       const spawnY = centerY - GAME_CONFIG.enemy.scout.size.height / 2
 
       const scout = this.createEnemy('scout', viewport, { x: spawnX, y: spawnY })
+      scout.spawnDriftTimeLeftMs = GAME_CONFIG.enemy.childSpawnDriftDurationMs
+      scout.spawnDriftVelocityX =
+        offsetFromCenter * GAME_CONFIG.enemy.childSpawnDriftVelocityX
       this.enemies.push(scout)
     }
   }
