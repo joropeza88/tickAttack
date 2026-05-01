@@ -60,7 +60,7 @@ export class StateManager {
     this.lives -= 1
     this.hitFlash = 220
     if (this.lives <= 0) {
-      //this.status = 'game-over'
+      this.status = 'game-over'
     }
   }
 

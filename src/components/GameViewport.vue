@@ -287,7 +287,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col bg-[url('/images/game.jpg')] bg-cover bg-top pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col bg-[url('/images/game.png')] bg-cover bg-top pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
     <GameHud
       :score="snapshot.score"
       :lives="snapshot.lives"
