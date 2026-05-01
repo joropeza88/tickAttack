@@ -107,14 +107,14 @@ const overlayTitle = computed(() => {
 
 const overlayDescription = computed(() => {
   if (isPreloading.value) {
-    return 'Preparando imágenes y sonidos del juego para que el inicio no tenga saltos ni cargas tardías.'
+    return 'Preparando imágenes y sonidos del juego.'
   }
 
   if (hasPreloadError.value) {
     return preloadErrorMessage.value
   }
 
-  return 'Toca cada enemigo antes de que llegue al perro. El perro ahora se queda fijo abajo y ocupa todo el ancho.'
+  return 'Toca cada enemigo antes de que llegue al perro.'
 })
 
 const onViewportPointerDown = (event: PointerEvent) => {
@@ -239,7 +239,7 @@ watch(
     }
 
     biteSound.currentTime = 1
-    crySound.currentTime = 0
+    crySound.currentTime = 0.25
     void biteSound.play().catch(() => {})
     void crySound.play().catch(() => {})
   }

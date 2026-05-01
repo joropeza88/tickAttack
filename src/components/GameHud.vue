@@ -16,7 +16,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="pointer-events-none absolute inset-x-0 top-4 z-10 px-3">
+  <div class="pointer-events-none absolute inset-x-0 top-10 z-10 px-3">
     <div class="flex items-center justify-between gap-3">
       <div class="flex flex-col">
         <span class="text-white text-xl font-black">NIVEL {{ level }}</span>

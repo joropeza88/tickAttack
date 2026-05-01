@@ -41,6 +41,12 @@ body {
   transform-origin: center bottom;
 }
 
+.dog-hit-shake {
+  animation: dogHitShake 0.22s ease-out;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
 .dog-fur-particle {
   position: absolute;
   display: block;
@@ -251,6 +257,32 @@ body {
   100% {
     opacity: 0;
     transform: translate(calc(-50% + var(--fur-dx)), calc(-50% + var(--fur-dy))) rotate(18deg) scale(1);
+  }
+}
+
+@keyframes dogHitShake {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  18% {
+    transform: translate3d(-5px, 0, 0) rotate(-5deg);
+  }
+
+  38% {
+    transform: translate3d(5px, -1px, 0) rotate(5deg);
+  }
+
+  58% {
+    transform: translate3d(-4px, 0, 0) rotate(-4deg);
+  }
+
+  78% {
+    transform: translate3d(3px, 0, 0) rotate(3deg);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
 }
 

@@ -19,6 +19,7 @@ const furParticles = [
 ]
 
 const showFurBurst = computed(() => props.hitFlash > 0)
+const showHitShake = computed(() => props.hitFlash > 0)
 </script>
 
 <template>
@@ -52,8 +53,13 @@ const showFurBurst = computed(() => props.hitFlash > 0)
     </div>
 
     <div
-      class="dog-idle h-full w-full bg-contain bg-center bg-no-repeat"
-      style="background-image: url('images/dog.png')"
-    />
+      class="h-full w-full"
+      :class="{ 'dog-hit-shake': showHitShake }"
+    >
+      <div
+        class="dog-idle h-full w-full bg-contain bg-center bg-no-repeat"
+        style="background-image: url('images/dog.png')"
+      />
+    </div>
   </div>
 </template>
