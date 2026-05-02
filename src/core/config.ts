@@ -5,7 +5,7 @@ export const GAME_CONFIG = {
   spawnIntervalMs: 920,
   loading: {
     preloadPublicAssetsBeforeStart: true,
-    publicAssetUrls: ['images/game.png', 'images/dog.png', 'images/tick_crushed.png', 'images/raid.png', 'tick_mother_sprite.png', 'tick_sprite.png'] as const,
+    publicAssetUrls: ['images/game.png', 'images/dog.png', 'images/tick_crushed.png', 'images/raid.png', 'images/tick_mother_sprite.png', 'images/tick_sprite.png'] as const,
     publicAudioUrls: ['sounds/cry.wav', 'sounds/bite.mp3', 'sounds/bang.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
   },
   progression: {
