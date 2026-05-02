@@ -5,7 +5,7 @@ export const GAME_CONFIG = {
   spawnIntervalMs: 920,
   loading: {
     preloadPublicAssetsBeforeStart: true,
-    publicAssetUrls: ['images/game.png', 'images/dog.png', 'images/tick.png', 'images/tick_crushed.png', 'images/mother_tick.png', 'images/raid.png'] as const,
+    publicAssetUrls: ['images/game.png', 'images/dog.png', 'images/tick_crushed.png', 'images/raid.png', 'tick_moother_sprite.png', 'tick_sprite.png'] as const,
     publicAudioUrls: ['sounds/cry.wav', 'sounds/bite.mp3', 'sounds/bang.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
   },
   progression: {
@@ -48,7 +48,7 @@ export const GAME_CONFIG = {
       speed: 50,
       scoreValue: 6,
       tapsRequired: 3,
-      minLevel: 2,
+      minLevel: 5,
       size: { width: 56, height: 56 } satisfies Size,
       spawnChanceBase: 0.035,
       spawnChancePerLevel: 0.012,
