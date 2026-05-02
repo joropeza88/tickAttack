@@ -125,7 +125,11 @@ export class GameEngine {
     this.updateGasCloud(deltaMs)
 
     if (!this.state.shouldSpawnEnemies() && this.enemyManager.getActiveEnemyCount() === 0) {
-      this.state.beginLevelTransition()
+      if (this.state.hasCompletedVictoryLevel()) {
+        this.state.win()
+      } else {
+        this.state.beginLevelTransition()
+      }
     }
 
     this.handleCollisions()

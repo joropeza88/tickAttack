@@ -1,4 +1,4 @@
-export type GameStatus = 'idle' | 'running' | 'game-over'
+export type GameStatus = 'idle' | 'running' | 'game-over' | 'victory'
 export type LevelPhase = 'playing' | 'last-wave' | 'cleanup' | 'transition'
 
 export interface Vector2D {

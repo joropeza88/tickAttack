@@ -44,6 +44,11 @@ body {
   animation: bounceSoft 0.6s ease-in-out infinite;
 }
 
+.button-press-pop {
+  transform: scale(0.94);
+  filter: brightness(0.96);
+}
+
 .dog-idle {
   animation: bounceSoft 1.2s ease-in-out infinite;
   transform-origin: center bottom;
@@ -66,12 +71,6 @@ body {
   will-change: transform, opacity;
 }
 
-.walk {
-  animation: walk-cycle 0.35s infinite ease-in-out;
-  transform-origin: center;
-  will-change: transform;
-}
-
 .tick-crushed {
   transform-origin: center;
   animation: tickCrushed 0.26s ease-out forwards;
@@ -80,6 +79,18 @@ body {
 .enemy-hit {
   transform-origin: center;
   animation: enemyHitPulse 0.2s ease-out forwards;
+}
+
+.tick-sprite-sheet {
+  animation: tickSpriteFrames 0.34s steps(4) infinite;
+  background-position: 0 0;
+  image-rendering: auto;
+}
+
+.tick-mother-sprite-sheet {
+  animation: tickSpriteFrames 0.45s steps(4) infinite;
+  background-position: 0 0;
+  image-rendering: auto;
 }
 
 .enemy-splat {
@@ -246,28 +257,6 @@ body {
   color: rgba(209, 250, 229, 0.92);
 }
 
-@keyframes walk-cycle {
-  0% {
-    transform: translateX(0px) scale(1, 1);
-  }
-
-  25% {
-    transform: translateX(-1px) scale(1.03, 0.96); /* squash + sway */
-  }
-
-  50% {
-    transform: translateX(0px) scale(1, 1.04); /* stretch (lift) */
-  }
-
-  75% {
-    transform: translateX(1px) scale(1.03, 0.96); /* lado contrario */
-  }
-
-  100% {
-    transform: translateX(0px) scale(1, 1);
-  }
-}
-
 @keyframes furBurst {
   0% {
     opacity: 0;
@@ -335,6 +324,16 @@ body {
 
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes tickSpriteFrames {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 133.333333% 0;
   }
 }
 

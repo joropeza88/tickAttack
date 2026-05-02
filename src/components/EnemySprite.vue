@@ -15,10 +15,35 @@ const enemyImage = computed(() => {
 })
 
 const enemyClasses = computed(() => ({
-  walk: props.enemy.state === 'falling' && props.enemy.tapFeedbackTimeLeftMs <= 0,
   'tick-crushed': props.enemy.state === 'crushed',
   'enemy-hit': props.enemy.state === 'falling' && props.enemy.tapFeedbackTimeLeftMs > 0
 }))
+
+const enemyVisualClasses = computed(() => ({
+  'tick-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type !== 'mother',
+  'tick-mother-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type === 'mother'
+}))
+
+const enemyVisualStyle = computed(() => {
+  if (props.enemy.state === 'falling' && props.enemy.type === 'mother') {
+    return {
+      backgroundImage: 'url(images/tick_mother_sprite.png)',
+      backgroundSize: '400% 100%'
+    }
+  }
+
+  if (props.enemy.state === 'falling' && props.enemy.type !== 'mother') {
+    return {
+      backgroundImage: 'url(images/tick_sprite.png)',
+      backgroundSize: '400% 100%'
+    }
+  }
+
+  return {
+    backgroundImage: enemyImage.value,
+    backgroundSize: 'cover'
+  }
+})
 
 const showPartialSplat = computed(
   () =>
@@ -63,10 +88,12 @@ const showPartialSplat = computed(
     <div
       class="h-full w-full drop-shadow-xl"
       :class="enemyClasses"
-      :style="{
-        backgroundImage: enemyImage,
-        backgroundSize: 'cover'
-      }"
-    />
+    >
+      <div
+        class="h-full w-full bg-no-repeat"
+        :class="enemyVisualClasses"
+        :style="enemyVisualStyle"
+      />
+    </div>
   </div>
 </template>

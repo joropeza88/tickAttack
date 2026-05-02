@@ -151,6 +151,17 @@ export class StateManager {
     return this.level + 1
   }
 
+  hasCompletedVictoryLevel(): boolean {
+    return this.level >= GAME_CONFIG.progression.victoryLevel
+  }
+
+  win(): void {
+    this.status = 'victory'
+    this.levelPhase = 'cleanup'
+    this.lastWaveBannerTimeLeftMs = 0
+    this.levelTransitionTimeLeftMs = 0
+  }
+
   beginLevelTransition(): void {
     if (this.levelPhase === 'transition') {
       return

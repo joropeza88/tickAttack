@@ -13,7 +13,7 @@ export default defineConfig({
       includeAssets: ['icon.svg'],
       manifest: {
         name: 'Tick Attack',
-        short_name: 'Tick Attack',
+        short_name: 'TickAttack',
         description: 'Aplásta las garrapatas antes de que alcancen a tu perro.',
         theme_color: '#f1efe6',
         background_color: '#f1efe6',

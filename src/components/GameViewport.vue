@@ -5,14 +5,20 @@ import EnemySprite from '@/components/EnemySprite.vue'
 import GameHud from '@/components/GameHud.vue'
 import LevelIntroBanner from '@/components/LevelIntroBanner.vue'
 import GameOverlay from '@/components/GameOverlay.vue'
+import { useButtonPressAction } from '@/composables/useButtonPressAction'
 import { GAME_CONFIG } from '@/core/config'
 import { useGame } from '@/composables/useGame'
-import { usePublicAssetPreloader } from '@/composables/usePublicAssetPreloader'
+
+const emit = defineEmits<{
+  exit: []
+  completed: []
+}>()
 
 const { containerRef, snapshot, isRunning, restart, start, tapAt, deployGasCloudAt } = useGame()
 const crySound = typeof Audio !== 'undefined' ? new Audio('sounds/cry.wav') : null
 const biteSound = typeof Audio !== 'undefined' ? new Audio('sounds/bite.mp3') : null
 const bangSound = typeof Audio !== 'undefined' ? new Audio('sounds/bang.mp3') : null
+const footstepsSound = typeof Audio !== 'undefined' ? new Audio('sounds/chajchas.mp3') : null
 const crushSound = typeof Audio !== 'undefined' ? new Audio('sounds/crush.mp3') : null
 const spraySound = typeof Audio !== 'undefined' ? new Audio('sounds/spray.mp3') : null
 const musicSound = typeof Audio !== 'undefined' ? new Audio('sounds/music.mp3') : null
@@ -29,6 +35,8 @@ const abilityAim = reactive({
 const showAbilityPreview = computed(
   () => abilityAim.active && abilityAim.insideViewport && snapshot.abilityUsesRemaining > 0
 )
+const { isPressing: isExitPressing, runPressAction: runExitPressAction } = useButtonPressAction()
+const { isPressing: isRetryPressing, runPressAction: runRetryPressAction } = useButtonPressAction()
 
 if (crySound) {
   crySound.preload = 'auto'
@@ -40,6 +48,12 @@ if (biteSound) {
 
 if (bangSound) {
   bangSound.preload = 'auto'
+}
+
+if (footstepsSound) {
+  footstepsSound.preload = 'auto'
+  footstepsSound.loop = true
+  footstepsSound.volume = 0
 }
 
 if (crushSound) {
@@ -55,22 +69,8 @@ if (spraySound) {
 if (musicSound) {
   musicSound.preload = 'auto'
   musicSound.loop = true
-  musicSound.volume = 0
-  //0.45
+  musicSound.volume = .3
 }
-
-const {
-  errorMessage: preloadErrorMessage,
-  isEnabled: preloadEnabled,
-  isLoading: isPreloading,
-  isReady: areAssetsReady,
-  preload,
-  progress: preloadProgress
-} = usePublicAssetPreloader({
-  enabled: GAME_CONFIG.loading.preloadPublicAssetsBeforeStart,
-  imageUrls: GAME_CONFIG.loading.publicAssetUrls,
-  audioElements: [crySound, biteSound, bangSound, crushSound, spraySound, musicSound]
-})
 
 const startBackgroundMusic = async () => {
   if (!musicSound || !musicSound.paused) {
@@ -84,44 +84,60 @@ const startBackgroundMusic = async () => {
   }
 }
 
-const isStartBlocked = computed(() => preloadEnabled && !areAssetsReady.value)
-const hasPreloadError = computed(() => preloadErrorMessage.value.length > 0)
-
-const overlayEyebrow = computed(() => {
-  if (isPreloading.value) {
-    return 'Loading'
+const startFootstepsLoop = async () => {
+  if (!footstepsSound || !footstepsSound.paused) {
+    return
   }
 
-  if (hasPreloadError.value) {
-    return 'Carga pendiente'
+  try {
+    await footstepsSound.play()
+  } catch {
+    // Igual que la musica, puede bloquearse hasta que exista interacción.
+  }
+}
+
+const getFootstepsVolume = () => {
+  if (snapshot.status !== 'running') {
+    return 0
   }
 
-  return snapshot.status === 'game-over' ? 'Game Over' : 'Ready'
-})
+  const activeEnemies = snapshot.enemies.filter((enemy) => enemy.state === 'falling').length
 
-const overlayTitle = computed(() => {
-  if (isPreloading.value) {
-    return `Cargando recursos ${preloadProgress.value}%`
+  if (activeEnemies <= 1) {
+    return 0
   }
 
-  if (hasPreloadError.value) {
-    return 'No se completó la precarga'
+  if (snapshot.levelPhase === 'last-wave') {
+    return activeEnemies >= 6 ? 0.12 : 0.1
   }
 
-  return snapshot.status === 'game-over' ? 'El perro fue alcanzado' : 'Protege al perro'
-})
-
-const overlayDescription = computed(() => {
-  if (isPreloading.value) {
-    return 'Preparando imágenes y sonidos del juego.'
+  if (activeEnemies >= 6) {
+    return 0.1
   }
 
-  if (hasPreloadError.value) {
-    return preloadErrorMessage.value
+  if (activeEnemies >= 4) {
+    return 0.075
   }
 
-  return 'Toca cada enemigo antes de que llegue al perro.'
-})
+  return 0.05
+}
+
+const syncFootstepsAmbience = () => {
+  if (!footstepsSound) {
+    return
+  }
+
+  const targetVolume = getFootstepsVolume()
+  footstepsSound.volume = targetVolume
+
+  if (targetVolume > 0) {
+    void startFootstepsLoop()
+    return
+  }
+
+  footstepsSound.pause()
+  footstepsSound.currentTime = 0
+}
 
 const onViewportPointerDown = (event: PointerEvent) => {
   if (!isRunning.value) {
@@ -218,24 +234,16 @@ const onSkillPointerDown = (event: PointerEvent) => {
   updateAbilityAimFromPoint(event.clientX, event.clientY)
 }
 
-const onStartOrRestart = () => {
-  if (hasPreloadError.value) {
-    void preload().catch(() => {})
-    return
-  }
-
-  if (isStartBlocked.value) {
-    return
-  }
-
-  void startBackgroundMusic()
-
-  if (snapshot.status === 'game-over') {
+const onRestart = () => {
+  runRetryPressAction(() => {
+    void startBackgroundMusic()
+    void startFootstepsLoop()
     restart()
-    return
-  }
+  })
+}
 
-  start()
+const onExit = () => {
+  runExitPressAction(() => emit('exit'))
 }
 
 watch(
@@ -256,13 +264,29 @@ watch(
   }
 )
 
+watch(
+  () => snapshot.status,
+  (status, previousStatus) => {
+    if (status === 'victory' && previousStatus !== 'victory') {
+      emit('completed')
+    }
+  }
+)
+
+watch(
+  () => [snapshot.status, snapshot.levelPhase, snapshot.enemies.length, snapshot.enemies.filter((enemy) => enemy.state === 'falling').length],
+  () => {
+    syncFootstepsAmbience()
+  }
+)
+
 onMounted(() => {
   window.addEventListener('pointermove', onWindowPointerMove)
   window.addEventListener('pointerup', onWindowPointerUp)
   window.addEventListener('pointercancel', onWindowPointerUp)
-  void preload()
-    .then(() => startBackgroundMusic())
-    .catch(() => {})
+  start()
+  void startBackgroundMusic()
+  syncFootstepsAmbience()
 })
 
 onBeforeUnmount(() => {
@@ -283,6 +307,11 @@ onBeforeUnmount(() => {
   if (crushSound) {
     crushSound.pause()
     crushSound.currentTime = 0
+  }
+
+  if (footstepsSound) {
+    footstepsSound.pause()
+    footstepsSound.currentTime = 0
   }
 
   if (bangSound) {
@@ -358,6 +387,14 @@ onBeforeUnmount(() => {
         :player="snapshot.player"
         :hit-flash="snapshot.hitFlash"
       />
+
+      <button
+        class="absolute bottom-4 left-0 z-10 rounded-full border border-white/25 bg-stone-950/45 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-white backdrop-blur-sm transition hover:bg-stone-950/60"
+        :class="{ 'button-press-pop': isExitPressing }"
+        @click="onExit"
+      >
+        Exit
+      </button>
     </section>
 
     <LevelIntroBanner
@@ -377,24 +414,17 @@ onBeforeUnmount(() => {
     />
 
     <GameOverlay
-      v-if="snapshot.status !== 'running'"
-      :eyebrow="overlayEyebrow"
-      :title="overlayTitle"
-      :description="overlayDescription"
-      :is-disabled="isStartBlocked"
-      :is-loading="isPreloading"
-      :show-progress="preloadEnabled"
-      :progress="preloadProgress"
-      :button-label="
-        isPreloading
-          ? 'Cargando...'
-          : hasPreloadError
-            ? 'Reintentar carga'
-            : snapshot.status === 'game-over'
-              ? 'Reintentar'
-              : 'Empezar'
-      "
-      @action="onStartOrRestart"
+      v-if="snapshot.status === 'game-over'"
+      eyebrow="Game Over"
+      title="El perro fue alcanzado"
+      description="Toca cada enemigo antes de que llegue al perro."
+      :is-button-pressed="isRetryPressing"
+      :is-disabled="false"
+      :is-loading="false"
+      :show-progress="false"
+      :progress="0"
+      button-label="Reintentar"
+      @action="onRestart"
     />
   </main>
 </template>

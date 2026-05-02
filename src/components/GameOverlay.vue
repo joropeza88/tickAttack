@@ -4,6 +4,7 @@ defineProps<{
   title: string
   description: string
   buttonLabel: string
+  isButtonPressed: boolean
   isDisabled: boolean
   isLoading: boolean
   showProgress: boolean
@@ -39,6 +40,7 @@ defineEmits<{
 
     <button
       class="mt-6 rounded-full bg-white px-6 py-3 text-sm font-bold uppercase tracking-[0.25em] text-stone-900 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
+      :class="{ 'button-press-pop': isButtonPressed }"
       :disabled="isDisabled"
       @click="$emit('action')"
     >
