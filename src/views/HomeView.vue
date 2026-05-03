@@ -61,7 +61,7 @@ void preload().catch(() => {})
         Protege al perro
       </h1>
       <p class="mt-4 max-w-sm text-sm leading-6 text-white/80">
-        Aplasta garrapatas, usa el spray en el momento correcto y sobrevive a cada ola.
+        Aplasta los enemigos, usa el spray en el momento correcto y sobrevive a cada ola.
       </p>
 
       <div

@@ -16,7 +16,8 @@ interface SpawnOptions {
 const createBuffState = (): EnemyBuffState => ({
   armor: false,
   speedBoost: false,
-  swerve: false
+  swerve: false,
+  leap: false
 })
 
 const getChanceForLevel = (base: number, perLevel: number, max: number, level: number): number =>
@@ -62,6 +63,7 @@ export class EnemyManager {
       }
 
       enemy.position.y += enemy.currentSpeed * deltaSeconds
+      this.updateLeap(enemy, deltaMs)
       this.updateSpawnDrift(enemy, deltaMs, options.viewport, deltaSeconds)
       this.updateSwerve(enemy, deltaMs, options.viewport, deltaSeconds)
 
@@ -89,7 +91,7 @@ export class EnemyManager {
 
     targetEnemy.tapFeedbackTimeLeftMs = GAME_CONFIG.enemy.hitFeedbackDurationMs
 
-    if (targetEnemy.type === 'worker' && targetEnemy.buffs.armor) {
+    if ((targetEnemy.type === 'worker' || targetEnemy.type === 'flea') && targetEnemy.buffs.armor) {
       targetEnemy.currentSpeed = targetEnemy.baseSpeed * GAME_CONFIG.enemy.buffs.armor.slowMultiplierOnHit
     }
 
@@ -186,6 +188,38 @@ export class EnemyManager {
     enemy.position.x = this.clampEnemyX(enemy.position.x, enemy.size.width, viewport.width)
   }
 
+  private updateLeap(enemy: EnemyEntity, deltaMs: number): void {
+    if (!enemy.buffs.leap) {
+      return
+    }
+
+    if (enemy.leapDelayMs > 0) {
+      enemy.leapDelayMs = Math.max(0, enemy.leapDelayMs - deltaMs)
+      return
+    }
+
+    if (enemy.leapTimeLeftMs <= 0) {
+      enemy.leapAppliedOffsetY = 0
+      return
+    }
+
+    enemy.leapTimeLeftMs = Math.max(0, enemy.leapTimeLeftMs - deltaMs)
+    const leapProgress =
+      enemy.leapDurationMs <= 0
+        ? 1
+        : 1 - enemy.leapTimeLeftMs / enemy.leapDurationMs
+    const easedProgress = 1 - Math.pow(1 - leapProgress, 3)
+    const targetOffsetY = enemy.leapDistanceY * easedProgress
+    const deltaOffsetY = targetOffsetY - enemy.leapAppliedOffsetY
+
+    enemy.position.y += deltaOffsetY
+    enemy.leapAppliedOffsetY = targetOffsetY
+
+    if (enemy.leapTimeLeftMs <= 0) {
+      enemy.leapAppliedOffsetY = 0
+    }
+  }
+
   private updateSpawnDrift(enemy: EnemyEntity, deltaMs: number, viewport: ViewportBounds, deltaSeconds: number): void {
     if (enemy.spawnDriftTimeLeftMs <= 0 || enemy.spawnDriftVelocityX === 0) {
       return
@@ -204,14 +238,31 @@ export class EnemyManager {
     const type = this.chooseSpawnType(level, arguments[0].chanceMultiplier)
     const enemy = this.createEnemy(type, viewport)
 
-    if (type === 'worker') {
-      this.applyWorkerBuffs(enemy, level, arguments[0].chanceMultiplier)
+    if (type === 'worker' || type === 'flea') {
+      this.applyGroundEnemyBuffs(enemy, level, arguments[0].chanceMultiplier)
     }
 
     this.enemies.push(enemy)
   }
 
   private chooseSpawnType(level: number, chanceMultiplier: number): EnemyType {
+    const fleaConfig = GAME_CONFIG.enemy.flea
+    if (level >= fleaConfig.minLevel) {
+      const fleaChance = Math.min(
+        1,
+        getChanceForLevel(
+          fleaConfig.spawnChanceBase,
+          fleaConfig.spawnChancePerLevel,
+          fleaConfig.spawnChanceMax,
+          level
+        ) * chanceMultiplier
+      )
+
+      if (Math.random() < fleaChance) {
+        return 'flea'
+      }
+    }
+
     const motherConfig = GAME_CONFIG.enemy.mother
     if (level >= motherConfig.minLevel) {
       const motherChance = Math.min(
@@ -250,6 +301,11 @@ export class EnemyManager {
       buffs: createBuffState(),
       spawnDriftTimeLeftMs: 0,
       spawnDriftVelocityX: 0,
+      leapDelayMs: 0,
+      leapTimeLeftMs: 0,
+      leapDurationMs: 0,
+      leapDistanceY: 0,
+      leapAppliedOffsetY: 0,
       swerveDelayMs: 0,
       swerveTimeLeftMs: 0,
       swerveVelocityX: 0
@@ -269,6 +325,11 @@ export class EnemyManager {
     enemy.buffs = createBuffState()
     enemy.spawnDriftTimeLeftMs = 0
     enemy.spawnDriftVelocityX = 0
+    enemy.leapDelayMs = 0
+    enemy.leapTimeLeftMs = 0
+    enemy.leapDurationMs = 0
+    enemy.leapDistanceY = 0
+    enemy.leapAppliedOffsetY = 0
     enemy.swerveDelayMs = 0
     enemy.swerveTimeLeftMs = 0
     enemy.swerveVelocityX = 0
@@ -285,8 +346,8 @@ export class EnemyManager {
     return enemy
   }
 
-  private applyWorkerBuffs(enemy: EnemyEntity, level: number, chanceMultiplier: number): void {
-    const { armor, speedBoost, swerve } = GAME_CONFIG.enemy.buffs
+  private applyGroundEnemyBuffs(enemy: EnemyEntity, level: number, chanceMultiplier: number): void {
+    const { armor, leap, speedBoost, swerve } = GAME_CONFIG.enemy.buffs
 
     if (Math.random() < Math.min(1, getChanceForLevel(speedBoost.chanceBase, speedBoost.chancePerLevel, speedBoost.chanceMax, level) * chanceMultiplier)) {
       enemy.buffs.speedBoost = true
@@ -300,9 +361,22 @@ export class EnemyManager {
       enemy.swerveVelocityX = enemy.baseSpeed * swerve.horizontalSpeedMultiplier * (Math.random() > 0.5 ? 1 : -1)
     }
 
-    if (Math.random() < Math.min(1, getChanceForLevel(armor.chanceBase, armor.chancePerLevel, armor.chanceMax, level) * chanceMultiplier)) {
-      enemy.buffs.armor = true
-      enemy.tapsRequired = armor.tapsRequired
+    if (enemy.type === 'worker') {
+      if (Math.random() < Math.min(1, getChanceForLevel(armor.chanceBase, armor.chancePerLevel, armor.chanceMax, level) * chanceMultiplier)) {
+        enemy.buffs.armor = true
+        enemy.tapsRequired = armor.tapsRequired
+      }
+    }
+
+    if (enemy.type === 'flea') {
+      if (Math.random() < Math.min(1, getChanceForLevel(leap.chanceBase, leap.chancePerLevel, leap.chanceMax, level) * chanceMultiplier)) {
+        enemy.buffs.leap = true
+        enemy.leapDelayMs = randomBetween(leap.delayMinMs, leap.delayMaxMs)
+        enemy.leapDurationMs = randomBetween(leap.durationMinMs, leap.durationMaxMs)
+        enemy.leapTimeLeftMs = enemy.leapDurationMs
+        enemy.leapDistanceY = randomBetween(leap.distanceMin, leap.distanceMax)
+        enemy.leapAppliedOffsetY = 0
+      }
     }
   }
 

@@ -24,13 +24,14 @@ export interface GasCloudEntity {
   timeLeftMs: number
 }
 
-export type EnemyType = 'scout' | 'worker' | 'mother'
+export type EnemyType = 'scout' | 'worker' | 'mother' | 'flea'
 export type EnemyState = 'falling' | 'crushed'
 
 export interface EnemyBuffState {
   armor: boolean
   speedBoost: boolean
   swerve: boolean
+  leap: boolean
 }
 
 export interface EnemyEntity {
@@ -49,6 +50,11 @@ export interface EnemyEntity {
   buffs: EnemyBuffState
   spawnDriftTimeLeftMs: number
   spawnDriftVelocityX: number
+  leapDelayMs: number
+  leapTimeLeftMs: number
+  leapDurationMs: number
+  leapDistanceY: number
+  leapAppliedOffsetY: number
   swerveDelayMs: number
   swerveTimeLeftMs: number
   swerveVelocityX: number

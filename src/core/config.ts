@@ -5,8 +5,8 @@ export const GAME_CONFIG = {
   spawnIntervalMs: 920,
   loading: {
     preloadPublicAssetsBeforeStart: true,
-    publicAssetUrls: ['images/game.png', 'images/dog.png', 'images/tick_crushed.png', 'images/raid.png', 'images/tick_mother_sprite.png', 'images/tick_sprite.png'] as const,
-    publicAudioUrls: ['sounds/cry.wav', 'sounds/bite.mp3', 'sounds/bang.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
+    publicAssetUrls: ['images/flea_crushed.png', 'images/flea_sprite.png', 'images/game.png', 'images/game_night.png', 'images/dog.png', 'images/tick_crushed.png', 'images/raid.png', 'images/tick_mother_sprite.png', 'images/tick_sprite.png'] as const,
+    publicAudioUrls: ['sounds/applause.mp3', 'sounds/cry.wav', 'sounds/bite.mp3', 'sounds/bang.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/jump.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
   },
   progression: {
     levelDurationMs: 30000,
@@ -44,11 +44,21 @@ export const GAME_CONFIG = {
       tapsRequired: 1,
       size: { width: 30, height: 30 } satisfies Size
     },
+    flea: {
+      speed: 165,
+      scoreValue: 2,
+      tapsRequired: 1,
+      minLevel: 3,
+      size: { width: 24, height: 24 } satisfies Size,
+      spawnChanceBase: 0.045,
+      spawnChancePerLevel: 0.01,
+      spawnChanceMax: 0.14
+    },
     mother: {
       speed: 50,
       scoreValue: 6,
       tapsRequired: 3,
-      minLevel: 5,
+      minLevel: 6,
       size: { width: 56, height: 56 } satisfies Size,
       spawnChanceBase: 0.035,
       spawnChancePerLevel: 0.012,
@@ -78,6 +88,17 @@ export const GAME_CONFIG = {
         chanceMax: 0.12,
         tapsRequired: 2,
         slowMultiplierOnHit: 0.58
+      },
+      leap: {
+        chanceBase: 0.06,
+        chancePerLevel: 0.012,
+        chanceMax: 0.18,
+        delayMinMs: 320,
+        delayMaxMs: 1150,
+        durationMinMs: 120,
+        durationMaxMs: 220,
+        distanceMin: 18,
+        distanceMax: 34
       }
     },
     tapPadding: 18,
@@ -85,7 +106,7 @@ export const GAME_CONFIG = {
     spawnSideInset: 28,
     crushedDurationMs: 260,
     hitFeedbackDurationMs: 170,
-    childSpawnSpread: 18,
+    childSpawnSpread: 26,
     childSpawnDriftDurationMs: 320,
     childSpawnDriftVelocityX: 82,
     despawnOffset: 120

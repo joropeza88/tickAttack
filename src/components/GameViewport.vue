@@ -20,11 +20,17 @@ const biteSound = typeof Audio !== 'undefined' ? new Audio('sounds/bite.mp3') : 
 const bangSound = typeof Audio !== 'undefined' ? new Audio('sounds/bang.mp3') : null
 const footstepsSound = typeof Audio !== 'undefined' ? new Audio('sounds/chajchas.mp3') : null
 const crushSound = typeof Audio !== 'undefined' ? new Audio('sounds/crush.mp3') : null
+const jumpSound = typeof Audio !== 'undefined' ? new Audio('sounds/jump.mp3') : null
 const spraySound = typeof Audio !== 'undefined' ? new Audio('sounds/spray.mp3') : null
 const musicSound = typeof Audio !== 'undefined' ? new Audio('sounds/music.mp3') : null
+let activeFleaLeapIds = new Set<string>()
 
 const isLastWaveBannerVisible = computed(() => isRunning.value && snapshot.lastWaveBannerTimeLeftMs > 0)
 const isLevelTransitionVisible = computed(() => isRunning.value && snapshot.levelTransitionTimeLeftMs > 0)
+const isNightLevel = computed(() => snapshot.level % 2 === 0)
+const backgroundImageUrl = computed(() =>
+  isNightLevel.value ? '/images/game_night.png' : '/images/game.png'
+)
 const abilityAim = reactive({
   active: false,
   pointerId: -1,
@@ -59,6 +65,11 @@ if (footstepsSound) {
 if (crushSound) {
   crushSound.preload = 'auto'
   crushSound.volume = 0.75
+}
+
+if (jumpSound) {
+  jumpSound.preload = 'auto'
+  jumpSound.volume = 0.75
 }
 
 if (spraySound) {
@@ -280,7 +291,40 @@ watch(
   }
 )
 
+watch(
+  () => snapshot.enemies.map((enemy) => ({
+    id: enemy.id,
+    type: enemy.type,
+    state: enemy.state,
+    leapTimeLeftMs: enemy.leapTimeLeftMs
+  })),
+  (enemies) => {
+    const nextActiveFleaLeapIds = new Set<string>()
+
+    for (const enemy of enemies) {
+      const isFleaLeapActive =
+        enemy.type === 'flea' &&
+        enemy.state === 'falling' &&
+        enemy.leapTimeLeftMs > 0
+
+      if (!isFleaLeapActive) {
+        continue
+      }
+
+      nextActiveFleaLeapIds.add(enemy.id)
+
+      if (!activeFleaLeapIds.has(enemy.id) && jumpSound) {
+        jumpSound.currentTime = 0
+        void jumpSound.play().catch(() => {})
+      }
+    }
+
+    activeFleaLeapIds = nextActiveFleaLeapIds
+  }
+)
+
 onMounted(() => {
+  activeFleaLeapIds = new Set()
   window.addEventListener('pointermove', onWindowPointerMove)
   window.addEventListener('pointerup', onWindowPointerUp)
   window.addEventListener('pointercancel', onWindowPointerUp)
@@ -309,6 +353,11 @@ onBeforeUnmount(() => {
     crushSound.currentTime = 0
   }
 
+  if (jumpSound) {
+    jumpSound.pause()
+    jumpSound.currentTime = 0
+  }
+
   if (footstepsSound) {
     footstepsSound.pause()
     footstepsSound.currentTime = 0
@@ -332,7 +381,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col bg-[url('/images/game.png')] bg-cover bg-top pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+  <main
+    class="relative mx-auto flex h-dvh w-full max-w-md flex-col bg-cover bg-top pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+    :style="{ backgroundImage: `url(${backgroundImageUrl})` }"
+  >
     <GameHud
       :score="snapshot.score"
       :lives="snapshot.lives"
@@ -381,19 +433,21 @@ onBeforeUnmount(() => {
         v-for="enemy in snapshot.enemies"
         :key="enemy.id"
         :enemy="enemy"
+        :is-night="isNightLevel"
       />
 
       <DogSprite
         :player="snapshot.player"
         :hit-flash="snapshot.hitFlash"
+        :is-night="isNightLevel"
       />
 
       <button
-        class="absolute bottom-4 left-0 z-10 rounded-full border border-white/25 bg-stone-950/45 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-white backdrop-blur-sm transition hover:bg-stone-950/60"
+        class="absolute left-2 bottom-4 rounded-full bg-white p-2 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
         :class="{ 'button-press-pop': isExitPressing }"
         @click="onExit"
       >
-        Exit
+        <img src="/images/out.png" class="w-6 h-6"/>
       </button>
     </section>
 

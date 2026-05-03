@@ -4,10 +4,15 @@ import type { EnemyEntity } from '@/models/game'
 
 const props = defineProps<{
   enemy: EnemyEntity
+  isNight: boolean
 }>()
 
 const enemyImage = computed(() => {
   if (props.enemy.state === 'crushed') {
+    if (props.enemy.type === 'flea') {
+      return 'url(images/flea_crushed.png)'
+    }
+
     return 'url(images/tick_crushed.png)'
   }
 
@@ -20,11 +25,25 @@ const enemyClasses = computed(() => ({
 }))
 
 const enemyVisualClasses = computed(() => ({
-  'tick-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type !== 'mother',
-  'tick-mother-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type === 'mother'
+  'tick-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type !== 'mother' && props.enemy.type !== 'flea',
+  'tick-mother-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type === 'mother',
+  'flea-sprite-sheet': props.enemy.state === 'falling' && props.enemy.type === 'flea',
+  'flea-leap-active':
+    props.enemy.state === 'falling' &&
+    props.enemy.type === 'flea' &&
+    props.enemy.buffs.leap &&
+    props.enemy.leapTimeLeftMs > 0
 }))
 
 const enemyVisualStyle = computed(() => {
+  if (props.enemy.state === 'falling' && props.enemy.type === 'flea') {
+    return {
+      backgroundImage: 'url(images/flea_sprite.png)',
+      backgroundSize: '400% 100%',
+      '--flea-leap-duration': `${props.enemy.leapDurationMs}ms`
+    }
+  }
+
   if (props.enemy.state === 'falling' && props.enemy.type === 'mother') {
     return {
       backgroundImage: 'url(images/tick_mother_sprite.png)',
@@ -91,7 +110,7 @@ const showPartialSplat = computed(
     >
       <div
         class="h-full w-full bg-no-repeat"
-        :class="enemyVisualClasses"
+        :class="[enemyVisualClasses, { 'night-enemy-filter': isNight, 'night-mother-filter': isNight && enemy.type === 'mother' }]"
         :style="enemyVisualStyle"
       />
     </div>
