@@ -281,12 +281,14 @@ body {
 }
 
 .level-intro-warning {
-  background: rgba(120, 53, 15, 0.72);
-  color: white;
+  background: transparent;
+  color: rgba(255, 59, 59, 0.58);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .level-intro-warning p:first-child {
-  color: rgba(254, 240, 138, 0.92);
+  color: rgba(255, 59, 59, 0.58);
 }
 
 .level-intro-level {

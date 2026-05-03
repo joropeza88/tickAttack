@@ -50,9 +50,9 @@ export const GAME_CONFIG = {
       tapsRequired: 1,
       minLevel: 3,
       size: { width: 24, height: 24 } satisfies Size,
-      spawnChanceBase: 0.045,
-      spawnChancePerLevel: 0.01,
-      spawnChanceMax: 0.14
+      spawnChanceBase: 0.07,
+      spawnChancePerLevel: 0.012,
+      spawnChanceMax: 0.18
     },
     mother: {
       speed: 50,
@@ -90,15 +90,15 @@ export const GAME_CONFIG = {
         slowMultiplierOnHit: 0.58
       },
       leap: {
-        chanceBase: 0.06,
-        chancePerLevel: 0.012,
-        chanceMax: 0.18,
+        chanceBase: 0.4,
+        chancePerLevel: 0,
+        chanceMax: 0.4,
         delayMinMs: 320,
         delayMaxMs: 1150,
         durationMinMs: 120,
         durationMaxMs: 220,
-        distanceMin: 18,
-        distanceMax: 34
+        distanceMin: 24,
+        distanceMax: 42
       }
     },
     tapPadding: 18,

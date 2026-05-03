@@ -15,10 +15,18 @@ defineProps<{
       class="level-intro-banner"
       :class="variant === 'warning' ? 'level-intro-warning' : 'level-intro-level'"
     >
-      <p class="text-[11px] font-semibold uppercase tracking-[0.36em]">
+      <p
+        v-if="variant !== 'warning'"
+        class="text-[11px] font-semibold uppercase tracking-[0.36em]"
+      >
         {{ eyebrow }}
       </p>
-      <p class="mt-2 text-3xl font-black leading-none">
+      <p
+        class="leading-none font-black"
+        :class="variant === 'warning'
+          ? 'text-[2.8rem] uppercase tracking-[0.12em] whitespace-nowrap'
+          : 'mt-2 text-3xl'"
+      >
         {{ title }}
       </p>
     </div>
