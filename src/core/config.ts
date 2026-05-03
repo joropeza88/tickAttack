@@ -90,11 +90,11 @@ export const GAME_CONFIG = {
         slowMultiplierOnHit: 0.58
       },
       leap: {
-        chanceBase: 0.4,
+        chanceBase: 0.5,
         chancePerLevel: 0,
-        chanceMax: 0.4,
-        delayMinMs: 320,
-        delayMaxMs: 1150,
+        chanceMax: 0.5,
+        delayMinMs: 1000,
+        delayMaxMs: 2000,
         durationMinMs: 120,
         durationMaxMs: 220,
         distanceMin: 24,
