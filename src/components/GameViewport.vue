@@ -119,7 +119,7 @@ const onViewportPointerDown = (event: PointerEvent) => {
   }
 
   if (resolution.hit && !resolution.killed && bangSound) {
-    bangSound.currentTime = 0.2
+    bangSound.currentTime = 0
     void bangSound.play().catch(() => {})
   }
 }
@@ -355,13 +355,15 @@ onBeforeUnmount(() => {
         :hit-flash="snapshot.hitFlash"
       />
 
+      
       <button
-        class="absolute left-2 bottom-4 z-20 rounded-full bg-white p-2 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
+        class="absolute left-2 bottom-6 z-20 rounded-full bg-white p-3 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
         :class="{ 'button-press-pop': isExitPressing }"
         @click="onExit"
       >
         <img src="/images/out.png" class="w-6 h-6"/>
       </button>
+      
     </section>
 
     <LevelIntroBanner

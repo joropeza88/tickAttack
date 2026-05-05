@@ -16,7 +16,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="pointer-events-none absolute inset-x-0 top-10 z-10 px-3">
+  <div class="pointer-events-none absolute inset-x-0 top-12 z-10 px-3">
     <div class="flex items-center justify-between gap-3">
       <span class="text-border text-white text-xl leading-none font-black">
           NIVEL {{ level }} <br/>
@@ -46,7 +46,7 @@ defineEmits<{
       </div>
     </div>
 
-    <div class="absolute right-3 top-32 z-20 -translate-y-1/2 pointer-events-auto">
+    <div class="absolute right-3 top-36 z-20 -translate-y-1/2 pointer-events-auto">
       <button
         class="ability-button"
         :class="abilityUsesRemaining > 0 ? (isAbilityArming ? 'ability-button-arming' : 'ability-button-ready') : 'ability-button-spent'"

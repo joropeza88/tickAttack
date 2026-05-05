@@ -61,7 +61,7 @@ export const GAME_CONFIG = {
       minLevel: 6,
       size: { width: 56, height: 56 } satisfies Size,
       spawnChanceBase: 0.035,
-      spawnChancePerLevel: 0.012,
+      spawnChancePerLevel: 0.006,
       spawnChanceMax: 0.11,
       spawnedScouts: 3
     },
