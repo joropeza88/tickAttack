@@ -17,7 +17,6 @@ const emit = defineEmits<{
 const { containerRef, snapshot, isRunning, restart, start, tapAt, deployGasCloudAt } = useGame()
 const crySound = typeof Audio !== 'undefined' ? new Audio('sounds/cry.wav') : null
 const biteSound = typeof Audio !== 'undefined' ? new Audio('sounds/bite.mp3') : null
-const bangSound = typeof Audio !== 'undefined' ? new Audio('sounds/bang.mp3') : null
 const footstepsSound = typeof Audio !== 'undefined' ? new Audio('sounds/chajchas.mp3') : null
 const crushSound = typeof Audio !== 'undefined' ? new Audio('sounds/crush.mp3') : null
 const spraySound = typeof Audio !== 'undefined' ? new Audio('sounds/spray.mp3') : null
@@ -48,10 +47,6 @@ if (crySound) {
 
 if (biteSound) {
   biteSound.preload = 'auto'
-}
-
-if (bangSound) {
-  bangSound.preload = 'auto'
 }
 
 if (footstepsSound) {
@@ -118,10 +113,6 @@ const onViewportPointerDown = (event: PointerEvent) => {
     void crushSound.play().catch(() => {})
   }
 
-  if (resolution.hit && !resolution.killed && bangSound) {
-    bangSound.currentTime = 0
-    void bangSound.play().catch(() => {})
-  }
 }
 
 const updateAbilityAimFromPoint = (clientX: number, clientY: number) => {
@@ -271,11 +262,6 @@ onBeforeUnmount(() => {
   if (footstepsSound) {
     footstepsSound.pause()
     footstepsSound.currentTime = 0
-  }
-
-  if (bangSound) {
-    bangSound.pause()
-    bangSound.currentTime = 0
   }
 
   if (spraySound) {

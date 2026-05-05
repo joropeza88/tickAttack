@@ -83,14 +83,12 @@ Autor: floraphonic
 Autor: freesound_community 
 - Perfil: https://pixabay.com/es/users/freesound_community-46691455/
 - Sound: Spray
-- Sound: Golpe en madera
 - Sound: chajchas2
 
 Autor: freesounds123 
 - Perfil: https://pixabay.com/es/users/freesounds123-49985424/
 - Sound: Crunchy Bite 2
 - Sound: Applause, small audience
-- Sound: Boing Spring Mouth harp 04-20-13 4
 
 Autor: DRAGON STUDIO
 - Perfil: https://pixabay.com/es/users/dragon-studio-38165424/
