@@ -27,11 +27,13 @@ export class EnemyManager {
   private enemies: EnemyEntity[] = []
   private pool: EnemyEntity[] = []
   private spawnCooldown: number = GAME_CONFIG.spawnIntervalMs
+  private activeEnemyCount = 0
 
   reset(): void {
     this.pool.push(...this.enemies)
     this.enemies = []
     this.spawnCooldown = GAME_CONFIG.spawnIntervalMs
+    this.activeEnemyCount = 0
   }
 
   getAll(): EnemyEntity[] {
@@ -43,7 +45,7 @@ export class EnemyManager {
 
     this.spawnCooldown -= deltaMs
 
-    if (options.shouldSpawn && this.spawnCooldown <= 0 && this.getActiveEnemyCount() < options.maxEnemies) {
+    if (options.shouldSpawn && this.spawnCooldown <= 0 && this.activeEnemyCount < options.maxEnemies) {
       this.spawn(options)
       this.spawnCooldown = options.spawnIntervalMs
     }
@@ -68,6 +70,7 @@ export class EnemyManager {
       this.updateSwerve(enemy, deltaMs, options.viewport, deltaSeconds)
 
       if (enemy.position.y > options.viewport.height + GAME_CONFIG.enemy.despawnOffset) {
+        this.activeEnemyCount = Math.max(0, this.activeEnemyCount - 1)
         this.pool.push(enemy)
         return false
       }
@@ -114,6 +117,7 @@ export class EnemyManager {
 
       if (isCollision) {
         collisions += 1
+        this.activeEnemyCount = Math.max(0, this.activeEnemyCount - 1)
         this.pool.push(enemy)
         return false
       }
@@ -160,7 +164,13 @@ export class EnemyManager {
   }
 
   getActiveEnemyCount(): number {
-    return this.enemies.filter((enemy) => enemy.state === 'falling').length
+    return this.activeEnemyCount
+  }
+
+  getRenderableEnemies(): EnemyEntity[] {
+    return this.enemies.map((enemy) => ({
+      ...enemy
+    }))
   }
 
   spawnBurst(count: number, level: number, viewport: ViewportBounds): void {
@@ -243,6 +253,7 @@ export class EnemyManager {
     }
 
     this.enemies.push(enemy)
+    this.activeEnemyCount += 1
   }
 
   private chooseSpawnType(level: number, chanceMultiplier: number): EnemyType {
@@ -381,9 +392,14 @@ export class EnemyManager {
   }
 
   private crushEnemy(enemy: EnemyEntity, viewport: ViewportBounds): void {
+    if (enemy.state !== 'falling') {
+      return
+    }
+
     enemy.state = 'crushed'
     enemy.stateTimeLeftMs = GAME_CONFIG.enemy.crushedDurationMs
     enemy.tapFeedbackTimeLeftMs = 0
+    this.activeEnemyCount = Math.max(0, this.activeEnemyCount - 1)
 
     if (enemy.type === 'mother') {
       this.spawnScoutsFromMother(enemy, viewport)

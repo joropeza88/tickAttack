@@ -20,10 +20,8 @@ const biteSound = typeof Audio !== 'undefined' ? new Audio('sounds/bite.mp3') : 
 const bangSound = typeof Audio !== 'undefined' ? new Audio('sounds/bang.mp3') : null
 const footstepsSound = typeof Audio !== 'undefined' ? new Audio('sounds/chajchas.mp3') : null
 const crushSound = typeof Audio !== 'undefined' ? new Audio('sounds/crush.mp3') : null
-const jumpSound = typeof Audio !== 'undefined' ? new Audio('sounds/jump.mp3') : null
 const spraySound = typeof Audio !== 'undefined' ? new Audio('sounds/spray.mp3') : null
 const musicSound = typeof Audio !== 'undefined' ? new Audio('sounds/music.mp3') : null
-let activeFleaLeapIds = new Set<string>()
 
 const isLastWaveBannerVisible = computed(() => isRunning.value && snapshot.lastWaveBannerTimeLeftMs > 0)
 const isLevelTransitionVisible = computed(() => isRunning.value && snapshot.levelTransitionTimeLeftMs > 0)
@@ -67,11 +65,6 @@ if (crushSound) {
   crushSound.volume = 0.75
 }
 
-if (jumpSound) {
-  jumpSound.preload = 'auto'
-  jumpSound.volume = 0.75
-}
-
 if (spraySound) {
   spraySound.preload = 'auto'
   spraySound.volume = 0.85
@@ -112,7 +105,7 @@ const getFootstepsVolume = () => {
     return 0
   }
 
-  const activeEnemies = snapshot.enemies.filter((enemy) => enemy.state === 'falling').length
+  const activeEnemies = snapshot.activeEnemyCount
 
   if (activeEnemies <= 1) {
     return 0
@@ -285,46 +278,13 @@ watch(
 )
 
 watch(
-  () => [snapshot.status, snapshot.levelPhase, snapshot.enemies.length, snapshot.enemies.filter((enemy) => enemy.state === 'falling').length],
+  () => [snapshot.status, snapshot.levelPhase, snapshot.activeEnemyCount],
   () => {
     syncFootstepsAmbience()
   }
 )
 
-watch(
-  () => snapshot.enemies.map((enemy) => ({
-    id: enemy.id,
-    type: enemy.type,
-    state: enemy.state,
-    leapTimeLeftMs: enemy.leapTimeLeftMs
-  })),
-  (enemies) => {
-    const nextActiveFleaLeapIds = new Set<string>()
-
-    for (const enemy of enemies) {
-      const isFleaLeapActive =
-        enemy.type === 'flea' &&
-        enemy.state === 'falling' &&
-        enemy.leapTimeLeftMs > 0
-
-      if (!isFleaLeapActive) {
-        continue
-      }
-
-      nextActiveFleaLeapIds.add(enemy.id)
-
-      if (!activeFleaLeapIds.has(enemy.id) && jumpSound) {
-        jumpSound.currentTime = 0
-        void jumpSound.play().catch(() => {})
-      }
-    }
-
-    activeFleaLeapIds = nextActiveFleaLeapIds
-  }
-)
-
 onMounted(() => {
-  activeFleaLeapIds = new Set()
   window.addEventListener('pointermove', onWindowPointerMove)
   window.addEventListener('pointerup', onWindowPointerUp)
   window.addEventListener('pointercancel', onWindowPointerUp)
@@ -351,11 +311,6 @@ onBeforeUnmount(() => {
   if (crushSound) {
     crushSound.pause()
     crushSound.currentTime = 0
-  }
-
-  if (jumpSound) {
-    jumpSound.pause()
-    jumpSound.currentTime = 0
   }
 
   if (footstepsSound) {
@@ -426,24 +381,27 @@ onBeforeUnmount(() => {
           transform: `translate3d(${snapshot.gasCloud.position.x - snapshot.gasCloud.radius}px, ${snapshot.gasCloud.position.y - snapshot.gasCloud.radius}px, 0)`
         }"
       >
-        <div class="gas-cloud-zone h-full w-full" />
+        <div class="gas-cloud-ring h-full w-full" />
       </div>
 
       <EnemySprite
         v-for="enemy in snapshot.enemies"
         :key="enemy.id"
         :enemy="enemy"
-        :is-night="isNightLevel"
       />
 
       <DogSprite
         :player="snapshot.player"
         :hit-flash="snapshot.hitFlash"
-        :is-night="isNightLevel"
+      />
+
+      <div
+        v-if="isNightLevel"
+        class="pointer-events-none absolute inset-0 z-10 bg-black/12"
       />
 
       <button
-        class="absolute left-2 bottom-4 rounded-full bg-white p-2 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
+        class="absolute left-2 bottom-4 z-20 rounded-full bg-white p-2 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
         :class="{ 'button-press-pop': isExitPressing }"
         @click="onExit"
       >

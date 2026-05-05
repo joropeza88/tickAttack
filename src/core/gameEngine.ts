@@ -2,7 +2,7 @@ import { GAME_CONFIG } from '@/core/config'
 import { EnemyManager } from '@/core/enemyManager'
 import { PlayerController } from '@/core/playerController'
 import { StateManager } from '@/core/stateManager'
-import type { EnemyEntity, GameSnapshot, GasCloudEntity, PlayerEntity, TapResolution, ViewportBounds } from '@/models/game'
+import type { GameSnapshot, GasCloudEntity, PlayerEntity, TapResolution, ViewportBounds } from '@/models/game'
 
 interface EngineOptions {
   onFrame: (snapshot: GameSnapshot) => void
@@ -176,6 +176,7 @@ export class GameEngine {
       lives: this.state.lives,
       level: this.state.getLevel(),
       abilityUsesRemaining: this.state.abilityUsesRemaining,
+      activeEnemyCount: this.enemyManager.getActiveEnemyCount(),
       levelPhase: this.state.levelPhase,
       upcomingLevel: this.state.getUpcomingLevel(),
       isLastWave: this.state.isLastWave(),
@@ -190,11 +191,7 @@ export class GameEngine {
         radius: this.gasCloud.radius,
         timeLeftMs: this.gasCloud.timeLeftMs
       },
-      enemies: this.enemyManager.getAll().map((enemy: EnemyEntity) => ({
-        ...enemy,
-        position: { ...enemy.position },
-        size: { ...enemy.size }
-      })),
+      enemies: this.enemyManager.getRenderableEnemies(),
       hitFlash: this.state.hitFlash
     })
   }

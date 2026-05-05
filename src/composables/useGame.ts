@@ -9,6 +9,7 @@ const initialSnapshot: GameSnapshot = {
   lives: GAME_CONFIG.initialLives,
   level: 1,
   abilityUsesRemaining: GAME_CONFIG.ability.usesPerLevel,
+  activeEnemyCount: 0,
   levelPhase: 'playing',
   upcomingLevel: 2,
   isLastWave: false,

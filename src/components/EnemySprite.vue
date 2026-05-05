@@ -4,7 +4,6 @@ import type { EnemyEntity } from '@/models/game'
 
 const props = defineProps<{
   enemy: EnemyEntity
-  isNight: boolean
 }>()
 
 const enemyImage = computed(() => {
@@ -87,7 +86,11 @@ const showPartialSplat = computed(
       v-if="enemy.state === 'crushed'"
       class="absolute inset-0 -z-10"
     >
-      <div class="enemy-splat absolute left-1/2 top-[60%]" />
+      <img
+        src="/images/stain.png"
+        alt=""
+        class="absolute left-1/2 top-[60%] w-[132%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-50 select-none pointer-events-none"
+      >
     </div>
 
     <div
@@ -101,16 +104,20 @@ const showPartialSplat = computed(
       v-else-if="showPartialSplat"
       class="absolute inset-0 -z-10"
     >
-      <div class="enemy-splat enemy-splat-soft absolute left-1/2 top-[60%]" />
+      <img
+        src="/images/stain.png"
+        alt=""
+        class="absolute left-1/2 top-[60%] w-[132%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-25 select-none pointer-events-none"
+      >
     </div>
 
     <div
-      class="h-full w-full drop-shadow-xl"
+      class="h-full w-full"
       :class="enemyClasses"
     >
       <div
-        class="h-full w-full bg-no-repeat"
-        :class="[enemyVisualClasses, { 'night-enemy-filter': isNight, 'night-mother-filter': isNight && enemy.type === 'mother' }]"
+      class="h-full w-full bg-no-repeat"
+        :class="enemyVisualClasses"
         :style="enemyVisualStyle"
       />
     </div>
