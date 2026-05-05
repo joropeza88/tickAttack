@@ -30,7 +30,8 @@ const initialSnapshot: GameSnapshot = {
     timeLeftMs: 0
   },
   enemies: [],
-  hitFlash: 0
+  hitFlash: 0,
+  hitCount: 0
 }
 
 export function useGame() {

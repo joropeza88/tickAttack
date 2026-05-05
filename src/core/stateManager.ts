@@ -15,6 +15,7 @@ export class StateManager {
   levelPhase: LevelPhase = 'playing'
   status: GameStatus = 'idle'
   hitFlash = 0
+  hitCount = 0
   levelTimeRemainingMs: number = GAME_CONFIG.progression.levelDurationMs
   lastWaveBannerTimeLeftMs: number = 0
   levelTransitionTimeLeftMs: number = 0
@@ -32,6 +33,7 @@ export class StateManager {
     this.levelPhase = 'playing'
     this.status = 'idle'
     this.hitFlash = 0
+    this.hitCount = 0
     this.levelTimeRemainingMs = GAME_CONFIG.progression.levelDurationMs
     this.lastWaveBannerTimeLeftMs = 0
     this.levelTransitionTimeLeftMs = 0
@@ -70,6 +72,7 @@ export class StateManager {
 
     this.lives -= 1
     this.hitFlash = 220
+    this.hitCount += 1
     if (this.lives <= 0) {
       this.status = 'game-over'
     }

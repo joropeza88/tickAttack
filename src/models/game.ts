@@ -84,6 +84,7 @@ export interface GameSnapshot {
   gasCloud: GasCloudEntity
   enemies: EnemyEntity[]
   hitFlash: number
+  hitCount: number
 }
 
 export interface TapResolution {

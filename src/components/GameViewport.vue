@@ -339,6 +339,7 @@ onBeforeUnmount(() => {
       <DogSprite
         :player="snapshot.player"
         :hit-flash="snapshot.hitFlash"
+        :hit-count="snapshot.hitCount"
       />
 
       

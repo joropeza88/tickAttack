@@ -5,6 +5,7 @@ import type { PlayerEntity } from '@/models/game'
 const props = defineProps<{
   player: PlayerEntity
   hitFlash: number
+  hitCount: number
 }>()
 
 const furParticles = [
@@ -34,6 +35,7 @@ const showHitShake = computed(() => props.hitFlash > 0)
   >
     <div
       v-if="showFurBurst"
+      :key="`fur-${hitCount}`"
       class="pointer-events-none absolute inset-0 overflow-visible"
     >
       <span
@@ -53,6 +55,7 @@ const showHitShake = computed(() => props.hitFlash > 0)
     </div>
 
     <div
+      :key="`shake-${hitCount}`"
       class="h-full w-full"
       :class="{ 'dog-hit-shake': showHitShake }"
     >

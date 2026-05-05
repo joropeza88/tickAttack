@@ -200,7 +200,8 @@ export class GameEngine {
         timeLeftMs: this.gasCloud.timeLeftMs
       },
       enemies: this.enemyManager.getRenderableEnemies(),
-      hitFlash: this.state.hitFlash
+      hitFlash: this.state.hitFlash,
+      hitCount: this.state.hitCount
     })
   }
 }
