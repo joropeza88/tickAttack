@@ -4,15 +4,6 @@ import { clamp, randomBetween } from '@/utils/math'
 
 let enemyId = 0
 
-interface SpawnOptions {
-  level: number
-  maxEnemies: number
-  spawnIntervalMs: number
-  shouldSpawn: boolean
-  chanceMultiplier: number
-  viewport: ViewportBounds
-}
-
 const createBuffState = (): EnemyBuffState => ({
   armor: false,
   speedBoost: false,
@@ -26,13 +17,11 @@ const getChanceForLevel = (base: number, perLevel: number, max: number, level: n
 export class EnemyManager {
   private enemies: EnemyEntity[] = []
   private pool: EnemyEntity[] = []
-  private spawnCooldown: number = GAME_CONFIG.spawnIntervalMs
   private activeEnemyCount = 0
 
   reset(): void {
     this.pool.push(...this.enemies)
     this.enemies = []
-    this.spawnCooldown = GAME_CONFIG.spawnIntervalMs
     this.activeEnemyCount = 0
   }
 
@@ -40,15 +29,8 @@ export class EnemyManager {
     return this.enemies
   }
 
-  update(deltaMs: number, options: SpawnOptions): void {
+  update(deltaMs: number, viewport: ViewportBounds): void {
     const deltaSeconds = deltaMs / 1000
-
-    this.spawnCooldown -= deltaMs
-
-    if (options.shouldSpawn && this.spawnCooldown <= 0 && this.activeEnemyCount < options.maxEnemies) {
-      this.spawn(options)
-      this.spawnCooldown = options.spawnIntervalMs
-    }
 
     this.enemies = this.enemies.filter((enemy) => {
       enemy.tapFeedbackTimeLeftMs = Math.max(0, enemy.tapFeedbackTimeLeftMs - deltaMs)
@@ -66,10 +48,10 @@ export class EnemyManager {
 
       enemy.position.y += enemy.currentSpeed * deltaSeconds
       this.updateLeap(enemy, deltaMs)
-      this.updateSpawnDrift(enemy, deltaMs, options.viewport, deltaSeconds)
-      this.updateSwerve(enemy, deltaMs, options.viewport, deltaSeconds)
+      this.updateSpawnDrift(enemy, deltaMs, viewport, deltaSeconds)
+      this.updateSwerve(enemy, deltaMs, viewport, deltaSeconds)
 
-      if (enemy.position.y > options.viewport.height + GAME_CONFIG.enemy.despawnOffset) {
+      if (enemy.position.y > viewport.height + GAME_CONFIG.enemy.despawnOffset) {
         this.activeEnemyCount = Math.max(0, this.activeEnemyCount - 1)
         this.pool.push(enemy)
         return false
@@ -167,15 +149,19 @@ export class EnemyManager {
     return this.activeEnemyCount
   }
 
+  hasFallingEnemies(): boolean {
+    return this.enemies.some((enemy) => enemy.state === 'falling')
+  }
+
   getRenderableEnemies(): EnemyEntity[] {
     return this.enemies.map((enemy) => ({
       ...enemy
     }))
   }
 
-  spawnBurst(count: number, level: number, viewport: ViewportBounds): void {
+  spawnWave(count: number, level: number, viewport: ViewportBounds, chanceMultiplier: number): void {
     for (let index = 0; index < count; index += 1) {
-      this.spawn({ level, maxEnemies: Number.MAX_SAFE_INTEGER, spawnIntervalMs: 0, shouldSpawn: true, chanceMultiplier: GAME_CONFIG.progression.lastWaveChanceMultiplier, viewport })
+      this.spawn(level, viewport, chanceMultiplier)
     }
   }
 
@@ -244,12 +230,12 @@ export class EnemyManager {
     }
   }
 
-  private spawn({ level, viewport }: SpawnOptions): void {
-    const type = this.chooseSpawnType(level, arguments[0].chanceMultiplier)
+  private spawn(level: number, viewport: ViewportBounds, chanceMultiplier: number): void {
+    const type = this.chooseSpawnType(level, chanceMultiplier)
     const enemy = this.createEnemy(type, viewport)
 
     if (type === 'worker' || type === 'flea') {
-      this.applyGroundEnemyBuffs(enemy, level, arguments[0].chanceMultiplier)
+      this.applyGroundEnemyBuffs(enemy, level, chanceMultiplier)
     }
 
     this.enemies.push(enemy)

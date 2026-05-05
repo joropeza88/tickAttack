@@ -56,8 +56,7 @@ if (bangSound) {
 
 if (footstepsSound) {
   footstepsSound.preload = 'auto'
-  footstepsSound.loop = true
-  footstepsSound.volume = 0
+  footstepsSound.volume = 0.28
 }
 
 if (crushSound) {
@@ -88,59 +87,13 @@ const startBackgroundMusic = async () => {
   }
 }
 
-const startFootstepsLoop = async () => {
-  if (!footstepsSound || !footstepsSound.paused) {
+const playWaveCue = () => {
+  if (!footstepsSound || snapshot.status !== 'running') {
     return
   }
 
-  try {
-    await footstepsSound.play()
-  } catch {
-    // Igual que la musica, puede bloquearse hasta que exista interacción.
-  }
-}
-
-const getFootstepsVolume = () => {
-  if (snapshot.status !== 'running') {
-    return 0
-  }
-
-  const activeEnemies = snapshot.activeEnemyCount
-
-  if (activeEnemies <= 1) {
-    return 0
-  }
-
-  if (snapshot.levelPhase === 'last-wave') {
-    return activeEnemies >= 6 ? 0.12 : 0.1
-  }
-
-  if (activeEnemies >= 6) {
-    return 0.1
-  }
-
-  if (activeEnemies >= 4) {
-    return 0.075
-  }
-
-  return 0.05
-}
-
-const syncFootstepsAmbience = () => {
-  if (!footstepsSound) {
-    return
-  }
-
-  const targetVolume = getFootstepsVolume()
-  footstepsSound.volume = targetVolume
-
-  if (targetVolume > 0) {
-    void startFootstepsLoop()
-    return
-  }
-
-  footstepsSound.pause()
   footstepsSound.currentTime = 0
+  void footstepsSound.play().catch(() => {})
 }
 
 const onViewportPointerDown = (event: PointerEvent) => {
@@ -241,7 +194,6 @@ const onSkillPointerDown = (event: PointerEvent) => {
 const onRestart = () => {
   runRetryPressAction(() => {
     void startBackgroundMusic()
-    void startFootstepsLoop()
     restart()
   })
 }
@@ -278,9 +230,13 @@ watch(
 )
 
 watch(
-  () => [snapshot.status, snapshot.levelPhase, snapshot.activeEnemyCount],
-  () => {
-    syncFootstepsAmbience()
+  () => snapshot.waveStartCue,
+  (cue, previousCue) => {
+    if (cue <= 0 || cue === previousCue) {
+      return
+    }
+
+    playWaveCue()
   }
 )
 
@@ -290,7 +246,6 @@ onMounted(() => {
   window.addEventListener('pointercancel', onWindowPointerUp)
   start()
   void startBackgroundMusic()
-  syncFootstepsAmbience()
 })
 
 onBeforeUnmount(() => {
@@ -340,6 +295,11 @@ onBeforeUnmount(() => {
     class="relative mx-auto flex h-dvh w-full max-w-md flex-col bg-cover bg-top pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
     :style="{ backgroundImage: `url(${backgroundImageUrl})` }"
   >
+    <div
+      v-if="isNightLevel"
+      class="pointer-events-none absolute inset-0 z-0 bg-black/12"
+    />
+
     <GameHud
       :score="snapshot.score"
       :lives="snapshot.lives"
@@ -393,11 +353,6 @@ onBeforeUnmount(() => {
       <DogSprite
         :player="snapshot.player"
         :hit-flash="snapshot.hitFlash"
-      />
-
-      <div
-        v-if="isNightLevel"
-        class="pointer-events-none absolute inset-0 z-10 bg-black/12"
       />
 
       <button

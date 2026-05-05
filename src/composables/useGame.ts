@@ -10,6 +10,7 @@ const initialSnapshot: GameSnapshot = {
   level: 1,
   abilityUsesRemaining: GAME_CONFIG.ability.usesPerLevel,
   activeEnemyCount: 0,
+  waveStartCue: 0,
   levelPhase: 'playing',
   upcomingLevel: 2,
   isLastWave: false,

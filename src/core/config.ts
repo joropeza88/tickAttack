@@ -2,7 +2,6 @@ import type { Size, ViewportBounds } from '@/models/game'
 
 export const GAME_CONFIG = {
   initialLives: 3,
-  spawnIntervalMs: 920,
   loading: {
     preloadPublicAssetsBeforeStart: true,
     publicAssetUrls: ['images/flea_crushed.png', 'images/flea_sprite.png', 'images/game.png', 'images/game_night.png', 'images/dog.png', 'images/stain.png', 'images/tick_crushed.png', 'images/raid.png', 'images/tick_mother_sprite.png', 'images/tick_sprite.png'] as const,
@@ -10,17 +9,18 @@ export const GAME_CONFIG = {
   },
   progression: {
     levelDurationMs: 30000,
-    lastWaveTriggerMs: 5000,
+    waveIntervalMs: 3000,
+    lastWaveDurationMs: 6000,
     lastWaveBannerDurationMs: 1400,
-    lastWaveSpawnIntervalMs: 420,
-    lastWaveExtraEnemies: 2,
-    lastWaveSpawnBurst: 3,
+    baseEnemiesPerWave: 1,
+    extraWaveEnemyEveryLevels: 3,
+    maxEnemiesPerWave: 4,
+    lastWaveBaseExtraEnemies: 2,
+    lastWaveExtraEnemyEveryLevels: 4,
+    maxEnemiesPerLastWave: 6,
     lastWaveChanceMultiplier: 1.45,
     levelTransitionDurationMs: 1800,
-    victoryLevel: 13,
-    baseMaxEnemies: 3,
-    extraEnemyEveryLevels: 2,
-    maxEnemiesCap: 8
+    victoryLevel: 13
   },
   player: {
     height: 88,

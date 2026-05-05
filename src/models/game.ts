@@ -72,6 +72,7 @@ export interface GameSnapshot {
   level: number
   abilityUsesRemaining: number
   activeEnemyCount: number
+  waveStartCue: number
   levelPhase: LevelPhase
   upcomingLevel: number
   isLastWave: boolean

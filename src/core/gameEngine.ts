@@ -105,26 +105,33 @@ export class GameEngine {
     const tickResult = this.state.tick(deltaMs)
     this.playerController.updatePlayer(this.player, this.viewport)
 
-    if (tickResult.startedLastWave) {
-      this.enemyManager.spawnBurst(
-        GAME_CONFIG.progression.lastWaveSpawnBurst,
+    if (tickResult.startedRegularWave) {
+      this.enemyManager.spawnWave(
+        this.state.getWaveEnemyCount(false),
         this.state.getLevel(),
-        this.viewport
+        this.viewport,
+        this.state.getWaveChanceMultiplier(false)
       )
     }
 
-    this.enemyManager.update(deltaMs, {
-      level: this.state.getLevel(),
-      maxEnemies: this.state.getMaxEnemies(),
-      spawnIntervalMs: this.state.getSpawnIntervalMs(),
-      shouldSpawn: this.state.shouldSpawnEnemies(),
-      chanceMultiplier: this.state.getSpawnChanceMultiplier(),
-      viewport: this.viewport
-    })
+    if (tickResult.startedLastWave) {
+      this.enemyManager.spawnWave(
+        this.state.getWaveEnemyCount(true),
+        this.state.getLevel(),
+        this.viewport,
+        this.state.getWaveChanceMultiplier(true)
+      )
+    }
+
+    this.enemyManager.update(deltaMs, this.viewport)
 
     this.updateGasCloud(deltaMs)
 
-    if (!this.state.shouldSpawnEnemies() && this.enemyManager.getActiveEnemyCount() === 0) {
+    if (
+      !this.state.shouldSpawnEnemies() &&
+      this.enemyManager.getActiveEnemyCount() === 0 &&
+      !this.enemyManager.hasFallingEnemies()
+    ) {
       if (this.state.hasCompletedVictoryLevel()) {
         this.state.win()
       } else {
@@ -177,6 +184,7 @@ export class GameEngine {
       level: this.state.getLevel(),
       abilityUsesRemaining: this.state.abilityUsesRemaining,
       activeEnemyCount: this.enemyManager.getActiveEnemyCount(),
+      waveStartCue: this.state.waveStartCue,
       levelPhase: this.state.levelPhase,
       upcomingLevel: this.state.getUpcomingLevel(),
       isLastWave: this.state.isLastWave(),

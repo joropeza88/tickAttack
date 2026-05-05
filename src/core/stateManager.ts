@@ -3,6 +3,7 @@ import type { GameStatus, LevelPhase } from '@/models/game'
 
 interface TickResult {
   startedLastWave: boolean
+  startedRegularWave: boolean
   advancedLevel: boolean
 }
 
@@ -17,6 +18,10 @@ export class StateManager {
   levelTimeRemainingMs: number = GAME_CONFIG.progression.levelDurationMs
   lastWaveBannerTimeLeftMs: number = 0
   levelTransitionTimeLeftMs: number = 0
+  waveStartCue = 0
+  private levelElapsedMs = 0
+  private nextRegularWaveStartMs = 0
+  private lastWaveStarted = false
 
   reset(): void {
     this.score = 0
@@ -29,6 +34,10 @@ export class StateManager {
     this.levelTimeRemainingMs = GAME_CONFIG.progression.levelDurationMs
     this.lastWaveBannerTimeLeftMs = 0
     this.levelTransitionTimeLeftMs = 0
+    this.waveStartCue = 0
+    this.levelElapsedMs = 0
+    this.nextRegularWaveStartMs = 0
+    this.lastWaveStarted = false
   }
 
   start(): void {
@@ -66,7 +75,7 @@ export class StateManager {
 
   tick(deltaMs: number): TickResult {
     if (this.status !== 'running') {
-      return { startedLastWave: false, advancedLevel: false }
+      return { startedLastWave: false, startedRegularWave: false, advancedLevel: false }
     }
 
     this.hitFlash = Math.max(0, this.hitFlash - deltaMs)
@@ -77,25 +86,41 @@ export class StateManager {
 
       if (this.levelTransitionTimeLeftMs <= 0) {
         this.advanceLevel()
-        return { startedLastWave: false, advancedLevel: true }
+        return { startedLastWave: false, startedRegularWave: false, advancedLevel: true }
       }
 
-      return { startedLastWave: false, advancedLevel: false }
+      return { startedLastWave: false, startedRegularWave: false, advancedLevel: false }
     }
 
-    this.levelTimeRemainingMs = Math.max(0, this.levelTimeRemainingMs - deltaMs)
+    const levelDurationMs = GAME_CONFIG.progression.levelDurationMs
+    const lastWaveStartMs = levelDurationMs - GAME_CONFIG.progression.lastWaveDurationMs
+    this.levelElapsedMs = Math.min(levelDurationMs, this.levelElapsedMs + deltaMs)
+    this.levelTimeRemainingMs = Math.max(0, levelDurationMs - this.levelElapsedMs)
 
-    if (this.levelPhase === 'playing' && this.levelTimeRemainingMs <= GAME_CONFIG.progression.lastWaveTriggerMs) {
+    let startedRegularWave = false
+
+    while (
+      this.nextRegularWaveStartMs < lastWaveStartMs &&
+      this.levelElapsedMs >= this.nextRegularWaveStartMs
+    ) {
+      this.waveStartCue += 1
+      startedRegularWave = true
+      this.nextRegularWaveStartMs += GAME_CONFIG.progression.waveIntervalMs
+    }
+
+    if (!this.lastWaveStarted && this.levelElapsedMs >= lastWaveStartMs) {
+      this.lastWaveStarted = true
       this.levelPhase = 'last-wave'
       this.lastWaveBannerTimeLeftMs = GAME_CONFIG.progression.lastWaveBannerDurationMs
-      return { startedLastWave: true, advancedLevel: false }
+      this.waveStartCue += 1
+      return { startedLastWave: true, startedRegularWave, advancedLevel: false }
     }
 
-    if (this.levelPhase === 'last-wave' && this.levelTimeRemainingMs <= 0) {
+    if (this.levelElapsedMs >= levelDurationMs) {
       this.levelPhase = 'cleanup'
     }
 
-    return { startedLastWave: false, advancedLevel: false }
+    return { startedLastWave: false, startedRegularWave, advancedLevel: false }
   }
 
   getLevel(): number {
@@ -107,36 +132,28 @@ export class StateManager {
     return duration <= 0 ? 1 : 1 - this.levelTimeRemainingMs / duration
   }
 
-  getMaxEnemies(): number {
+  getWaveEnemyCount(isLastWave: boolean): number {
     const completedLevels = this.level - 1
-    const extraEnemies = Math.floor(completedLevels / GAME_CONFIG.progression.extraEnemyEveryLevels)
-
-    const baseMax = Math.min(
-      GAME_CONFIG.progression.baseMaxEnemies + extraEnemies,
-      GAME_CONFIG.progression.maxEnemiesCap
+    const normalWaveCount = Math.min(
+      GAME_CONFIG.progression.baseEnemiesPerWave +
+        Math.floor(completedLevels / GAME_CONFIG.progression.extraWaveEnemyEveryLevels),
+      GAME_CONFIG.progression.maxEnemiesPerWave
     )
 
-    if (this.levelPhase === 'last-wave') {
-      return baseMax + GAME_CONFIG.progression.lastWaveExtraEnemies
+    if (!isLastWave) {
+      return normalWaveCount
     }
 
-    return baseMax
+    return Math.min(
+      normalWaveCount +
+        GAME_CONFIG.progression.lastWaveBaseExtraEnemies +
+        Math.floor(completedLevels / GAME_CONFIG.progression.lastWaveExtraEnemyEveryLevels),
+      GAME_CONFIG.progression.maxEnemiesPerLastWave
+    )
   }
 
-  getSpawnIntervalMs(): number {
-    if (this.levelPhase === 'last-wave') {
-      return GAME_CONFIG.progression.lastWaveSpawnIntervalMs
-    }
-
-    return GAME_CONFIG.spawnIntervalMs
-  }
-
-  getSpawnChanceMultiplier(): number {
-    if (this.levelPhase === 'last-wave') {
-      return GAME_CONFIG.progression.lastWaveChanceMultiplier
-    }
-
-    return 1
+  getWaveChanceMultiplier(isLastWave: boolean): number {
+    return isLastWave ? GAME_CONFIG.progression.lastWaveChanceMultiplier : 1
   }
 
   shouldSpawnEnemies(): boolean {
@@ -179,5 +196,8 @@ export class StateManager {
     this.levelTimeRemainingMs = GAME_CONFIG.progression.levelDurationMs
     this.lastWaveBannerTimeLeftMs = 0
     this.levelTransitionTimeLeftMs = 0
+    this.levelElapsedMs = 0
+    this.nextRegularWaveStartMs = 0
+    this.lastWaveStarted = false
   }
 }

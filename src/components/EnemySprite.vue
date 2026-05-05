@@ -107,7 +107,7 @@ const showPartialSplat = computed(
       <img
         src="/images/stain.png"
         alt=""
-        class="absolute left-1/2 top-[60%] w-[132%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-25 select-none pointer-events-none"
+        class="absolute left-1/2 top-[60%] w-[96%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-25 select-none pointer-events-none"
       >
     </div>
 
