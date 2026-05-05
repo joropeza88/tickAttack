@@ -2,8 +2,8 @@ import { GAME_CONFIG } from '@/core/config'
 import type { GameStatus, LevelPhase } from '@/models/game'
 
 interface TickResult {
-  startedLastWave: boolean
-  startedRegularWave: boolean
+  regularWavesStarted: number
+  lastWavesStarted: number
   advancedLevel: boolean
 }
 
@@ -21,6 +21,7 @@ export class StateManager {
   waveStartCue = 0
   private levelElapsedMs = 0
   private nextRegularWaveStartMs = 0
+  private nextLastWaveStartMs = 0
   private lastWaveStarted = false
 
   reset(): void {
@@ -37,6 +38,7 @@ export class StateManager {
     this.waveStartCue = 0
     this.levelElapsedMs = 0
     this.nextRegularWaveStartMs = 0
+    this.nextLastWaveStartMs = 0
     this.lastWaveStarted = false
   }
 
@@ -75,7 +77,7 @@ export class StateManager {
 
   tick(deltaMs: number): TickResult {
     if (this.status !== 'running') {
-      return { startedLastWave: false, startedRegularWave: false, advancedLevel: false }
+      return { regularWavesStarted: 0, lastWavesStarted: 0, advancedLevel: false }
     }
 
     this.hitFlash = Math.max(0, this.hitFlash - deltaMs)
@@ -86,10 +88,10 @@ export class StateManager {
 
       if (this.levelTransitionTimeLeftMs <= 0) {
         this.advanceLevel()
-        return { startedLastWave: false, startedRegularWave: false, advancedLevel: true }
+        return { regularWavesStarted: 0, lastWavesStarted: 0, advancedLevel: true }
       }
 
-      return { startedLastWave: false, startedRegularWave: false, advancedLevel: false }
+      return { regularWavesStarted: 0, lastWavesStarted: 0, advancedLevel: false }
     }
 
     const levelDurationMs = GAME_CONFIG.progression.levelDurationMs
@@ -97,30 +99,41 @@ export class StateManager {
     this.levelElapsedMs = Math.min(levelDurationMs, this.levelElapsedMs + deltaMs)
     this.levelTimeRemainingMs = Math.max(0, levelDurationMs - this.levelElapsedMs)
 
-    let startedRegularWave = false
+    let regularWavesStarted = 0
 
     while (
       this.nextRegularWaveStartMs < lastWaveStartMs &&
       this.levelElapsedMs >= this.nextRegularWaveStartMs
     ) {
       this.waveStartCue += 1
-      startedRegularWave = true
-      this.nextRegularWaveStartMs += GAME_CONFIG.progression.waveIntervalMs
+      regularWavesStarted += 1
+      this.nextRegularWaveStartMs += this.getWaveIntervalMs()
     }
+
+    let lastWavesStarted = 0
 
     if (!this.lastWaveStarted && this.levelElapsedMs >= lastWaveStartMs) {
       this.lastWaveStarted = true
       this.levelPhase = 'last-wave'
       this.lastWaveBannerTimeLeftMs = GAME_CONFIG.progression.lastWaveBannerDurationMs
+      this.nextLastWaveStartMs = lastWaveStartMs
+    }
+
+    while (
+      this.lastWaveStarted &&
+      this.nextLastWaveStartMs < levelDurationMs &&
+      this.levelElapsedMs >= this.nextLastWaveStartMs
+    ) {
       this.waveStartCue += 1
-      return { startedLastWave: true, startedRegularWave, advancedLevel: false }
+      lastWavesStarted += 1
+      this.nextLastWaveStartMs += GAME_CONFIG.progression.lastWaveIntervalMs
     }
 
     if (this.levelElapsedMs >= levelDurationMs) {
       this.levelPhase = 'cleanup'
     }
 
-    return { startedLastWave: false, startedRegularWave, advancedLevel: false }
+    return { regularWavesStarted, lastWavesStarted, advancedLevel: false }
   }
 
   getLevel(): number {
@@ -144,12 +157,7 @@ export class StateManager {
       return normalWaveCount
     }
 
-    return Math.min(
-      normalWaveCount +
-        GAME_CONFIG.progression.lastWaveBaseExtraEnemies +
-        Math.floor(completedLevels / GAME_CONFIG.progression.lastWaveExtraEnemyEveryLevels),
-      GAME_CONFIG.progression.maxEnemiesPerLastWave
-    )
+    return normalWaveCount + GAME_CONFIG.progression.lastWaveExtraEnemies
   }
 
   getWaveChanceMultiplier(isLastWave: boolean): number {
@@ -162,6 +170,14 @@ export class StateManager {
 
   isLastWave(): boolean {
     return this.levelPhase === 'last-wave'
+  }
+
+  getWaveIntervalMs(): number {
+    return Math.max(
+      GAME_CONFIG.progression.lastWaveIntervalMs,
+      GAME_CONFIG.progression.baseWaveIntervalMs -
+        this.level * GAME_CONFIG.progression.waveIntervalReductionPerLevelMs
+    )
   }
 
   getUpcomingLevel(): number {
@@ -198,6 +214,7 @@ export class StateManager {
     this.levelTransitionTimeLeftMs = 0
     this.levelElapsedMs = 0
     this.nextRegularWaveStartMs = 0
+    this.nextLastWaveStartMs = 0
     this.lastWaveStarted = false
   }
 }

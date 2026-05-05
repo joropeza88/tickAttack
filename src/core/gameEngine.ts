@@ -105,7 +105,7 @@ export class GameEngine {
     const tickResult = this.state.tick(deltaMs)
     this.playerController.updatePlayer(this.player, this.viewport)
 
-    if (tickResult.startedRegularWave) {
+    for (let index = 0; index < tickResult.regularWavesStarted; index += 1) {
       this.enemyManager.spawnWave(
         this.state.getWaveEnemyCount(false),
         this.state.getLevel(),
@@ -114,7 +114,7 @@ export class GameEngine {
       )
     }
 
-    if (tickResult.startedLastWave) {
+    for (let index = 0; index < tickResult.lastWavesStarted; index += 1) {
       this.enemyManager.spawnWave(
         this.state.getWaveEnemyCount(true),
         this.state.getLevel(),
