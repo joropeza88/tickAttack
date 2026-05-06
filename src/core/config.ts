@@ -6,7 +6,7 @@ export const GAME_CONFIG = {
   loading: {
     preloadPublicAssetsBeforeStart: true,
     publicAssetUrls: ['images/flea_crushed.webp', 'images/flea_sprite.webp', 'images/game.webp', 'images/game_night.webp', 'images/dog.webp', 'images/stain.webp', 'images/tick_crushed.webp', 'images/raid.webp', 'images/tick_mother_sprite.webp', 'images/tick_sprite.webp'] as const,
-    publicAudioUrls: ['sounds/applause.mp3', 'sounds/cry.wav', 'sounds/bite.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
+    publicAudioUrls: ['sounds/applause.mp3', 'sounds/cry.mp3', 'sounds/bite.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
   },
   progression: {
     levelDurationMs: 30000,

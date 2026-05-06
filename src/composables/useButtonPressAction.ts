@@ -10,7 +10,7 @@ interface UseButtonPressActionOptions {
 export function useButtonPressAction(options: UseButtonPressActionOptions = {}) {
   const {
     audioUrl = 'sounds/button-press.mp3',
-    audioOffsetSeconds = 0.2,
+    audioOffsetSeconds = 0,
     actionDelayMs = 160
   } = options
 

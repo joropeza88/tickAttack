@@ -114,7 +114,7 @@ const onWindowPointerUp = (event: PointerEvent) => {
     const didDeploy = deployGasCloudAt(abilityAim.x, abilityAim.y)
 
     if (didDeploy) {
-      void audioManager.play('sounds/spray.mp3', { offsetSeconds: 0.2, volume: 0.85 })
+      void audioManager.play('sounds/spray.mp3', { offsetSeconds: 0, volume: 0.85 })
     }
   }
 
@@ -159,8 +159,8 @@ watch(
     }
 
     triggerBiteVibration()
-    void audioManager.play('sounds/bite.mp3', { offsetSeconds: 1, volume: 1 })
-    void audioManager.play('sounds/cry.wav', { offsetSeconds: 0.25, volume: 1 })
+    void audioManager.play('sounds/bite.mp3', { offsetSeconds: 0, volume: 1 })
+    void audioManager.play('sounds/cry.mp3', { offsetSeconds: 0, volume: 1 })
   }
 )
 
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointerup', onWindowPointerUp)
   window.removeEventListener('pointercancel', onWindowPointerUp)
   audioManager.stop('sounds/bite.mp3')
-  audioManager.stop('sounds/cry.wav')
+  audioManager.stop('sounds/cry.mp3')
   audioManager.stop('sounds/crush.mp3')
   audioManager.stop('sounds/chajchas.mp3')
   audioManager.stop('sounds/spray.mp3')
