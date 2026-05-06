@@ -25,10 +25,6 @@ export class EnemyManager {
     this.activeEnemyCount = 0
   }
 
-  getAll(): EnemyEntity[] {
-    return this.enemies
-  }
-
   update(deltaMs: number, viewport: ViewportBounds): void {
     const deltaSeconds = deltaMs / 1000
 

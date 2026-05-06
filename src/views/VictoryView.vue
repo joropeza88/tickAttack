@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useButtonPressAction } from '@/composables/useButtonPressAction'
+import { audioManager } from '@/core/audioManager'
 
 const emit = defineEmits<{
   exit: []
 }>()
 
 const { isPressing: isExitPressing, runPressAction } = useButtonPressAction()
-const applauseSound = typeof Audio !== 'undefined' ? new Audio('sounds/applause.mp3') : null
-const confettiBursts = ref<number[]>([])
-let secondBurstTimer = 0
-
-if (applauseSound) {
-  applauseSound.preload = 'auto'
-  applauseSound.volume = 0.8
-}
+const confettiBursts = computed(() => [0, 1] as const)
 
 const onExit = () => {
   runPressAction(() => emit('exit'))
@@ -41,32 +35,17 @@ async function shareGame() {
   const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
   window.location.href = facebookShareUrl;
 }
-
-
 onMounted(() => {
-  confettiBursts.value = [0]
-  secondBurstTimer = window.setTimeout(() => {
-    confettiBursts.value = [0, 1]
-  }, 520)
-
-  if (applauseSound) {
-    applauseSound.currentTime = 0
-    void applauseSound.play().catch(() => {})
-  }
+  void audioManager.play('sounds/applause.mp3', { volume: 0.8, stopPrevious: true })
 })
 
 onBeforeUnmount(() => {
-  window.clearTimeout(secondBurstTimer)
-
-  if (applauseSound) {
-    applauseSound.pause()
-    applauseSound.currentTime = 0
-  }
+  audioManager.stop('sounds/applause.mp3')
 })
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-[url('/images/game.png')] bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
+  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-[url('/images/game.webp')] bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
     <div class="absolute inset-0 bg-emerald-950/45" />
 
     <div class="pointer-events-none absolute inset-0 z-10 overflow-hidden">

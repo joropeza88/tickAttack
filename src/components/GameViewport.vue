@@ -7,6 +7,7 @@ import LevelIntroBanner from '@/components/LevelIntroBanner.vue'
 import GameOverlay from '@/components/GameOverlay.vue'
 import { useButtonPressAction } from '@/composables/useButtonPressAction'
 import { GAME_CONFIG } from '@/core/config'
+import { audioManager } from '@/core/audioManager'
 import { useGame } from '@/composables/useGame'
 
 const emit = defineEmits<{
@@ -15,18 +16,11 @@ const emit = defineEmits<{
 }>()
 
 const { containerRef, snapshot, isRunning, restart, start, tapAt, deployGasCloudAt } = useGame()
-const crySound = typeof Audio !== 'undefined' ? new Audio('sounds/cry.wav') : null
-const biteSound = typeof Audio !== 'undefined' ? new Audio('sounds/bite.mp3') : null
-const footstepsSound = typeof Audio !== 'undefined' ? new Audio('sounds/chajchas.mp3') : null
-const crushSound = typeof Audio !== 'undefined' ? new Audio('sounds/crush.mp3') : null
-const spraySound = typeof Audio !== 'undefined' ? new Audio('sounds/spray.mp3') : null
-const musicSound = typeof Audio !== 'undefined' ? new Audio('sounds/music.mp3') : null
-
 const isLastWaveBannerVisible = computed(() => isRunning.value && snapshot.lastWaveBannerTimeLeftMs > 0)
 const isLevelTransitionVisible = computed(() => isRunning.value && snapshot.levelTransitionTimeLeftMs > 0)
 const isNightLevel = computed(() => snapshot.level % 2 === 0)
 const backgroundImageUrl = computed(() =>
-  isNightLevel.value ? '/images/game_night.png' : '/images/game.png'
+  isNightLevel.value ? '/images/game_night.webp' : '/images/game.webp'
 )
 const abilityAim = reactive({
   active: false,
@@ -41,54 +35,16 @@ const showAbilityPreview = computed(
 const { isPressing: isExitPressing, runPressAction: runExitPressAction } = useButtonPressAction()
 const { isPressing: isRetryPressing, runPressAction: runRetryPressAction } = useButtonPressAction()
 
-if (crySound) {
-  crySound.preload = 'auto'
-}
-
-if (biteSound) {
-  biteSound.preload = 'auto'
-}
-
-if (footstepsSound) {
-  footstepsSound.preload = 'auto'
-  footstepsSound.volume = 0.28
-}
-
-if (crushSound) {
-  crushSound.preload = 'auto'
-  crushSound.volume = 0.75
-}
-
-if (spraySound) {
-  spraySound.preload = 'auto'
-  spraySound.volume = 0.85
-}
-
-if (musicSound) {
-  musicSound.preload = 'auto'
-  musicSound.loop = true
-  musicSound.volume = .3
-}
-
 const startBackgroundMusic = async () => {
-  if (!musicSound || !musicSound.paused) {
-    return
-  }
-
-  try {
-    await musicSound.play()
-  } catch {
-    // El navegador puede bloquear autoplay hasta que exista interacción.
-  }
+  await audioManager.play('sounds/music.mp3', { loop: true, volume: 0.3, stopPrevious: true })
 }
 
 const playWaveCue = () => {
-  if (!footstepsSound || snapshot.status !== 'running') {
+  if (snapshot.status !== 'running') {
     return
   }
 
-  footstepsSound.currentTime = 0
-  void footstepsSound.play().catch(() => {})
+  void audioManager.play('sounds/chajchas.mp3', { volume: 0.28, stopPrevious: true })
 }
 
 const onViewportPointerDown = (event: PointerEvent) => {
@@ -108,9 +64,8 @@ const onViewportPointerDown = (event: PointerEvent) => {
   const rect = element.getBoundingClientRect()
   const resolution = tapAt(event.clientX - rect.left, event.clientY - rect.top)
 
-  if (resolution.killed && crushSound) {
-    crushSound.currentTime = 0
-    void crushSound.play().catch(() => {})
+  if (resolution.killed) {
+    void audioManager.play('sounds/crush.mp3', { volume: 0.75 })
   }
 
 }
@@ -158,9 +113,8 @@ const onWindowPointerUp = (event: PointerEvent) => {
   if (abilityAim.insideViewport && snapshot.abilityUsesRemaining > 0) {
     const didDeploy = deployGasCloudAt(abilityAim.x, abilityAim.y)
 
-    if (didDeploy && spraySound) {
-      spraySound.currentTime = 0.2
-      void spraySound.play().catch(() => {})
+    if (didDeploy) {
+      void audioManager.play('sounds/spray.mp3', { offsetSeconds: 0.2, volume: 0.85 })
     }
   }
 
@@ -196,7 +150,7 @@ const onExit = () => {
 watch(
   () => snapshot.lives,
   (lives, previousLives) => {
-    if (!crySound || !biteSound || previousLives == null || snapshot.status !== 'running') {
+    if (previousLives == null || snapshot.status !== 'running') {
       return
     }
 
@@ -204,10 +158,8 @@ watch(
       return
     }
 
-    biteSound.currentTime = 1
-    crySound.currentTime = 0.25
-    void biteSound.play().catch(() => {})
-    void crySound.play().catch(() => {})
+    void audioManager.play('sounds/bite.mp3', { offsetSeconds: 1, volume: 1 })
+    void audioManager.play('sounds/cry.wav', { offsetSeconds: 0.25, volume: 1 })
   }
 )
 
@@ -243,36 +195,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointermove', onWindowPointerMove)
   window.removeEventListener('pointerup', onWindowPointerUp)
   window.removeEventListener('pointercancel', onWindowPointerUp)
-
-  if (biteSound) {
-    biteSound.pause()
-    biteSound.currentTime = 0
-  }
-
-  if (crySound) {
-    crySound.pause()
-    crySound.currentTime = 0
-  }
-
-  if (crushSound) {
-    crushSound.pause()
-    crushSound.currentTime = 0
-  }
-
-  if (footstepsSound) {
-    footstepsSound.pause()
-    footstepsSound.currentTime = 0
-  }
-
-  if (spraySound) {
-    spraySound.pause()
-    spraySound.currentTime = 0
-  }
-
-  if (musicSound) {
-    musicSound.pause()
-    musicSound.currentTime = 0
-  }
+  audioManager.stop('sounds/bite.mp3')
+  audioManager.stop('sounds/cry.wav')
+  audioManager.stop('sounds/crush.mp3')
+  audioManager.stop('sounds/chajchas.mp3')
+  audioManager.stop('sounds/spray.mp3')
+  audioManager.stop('sounds/music.mp3')
 })
 </script>
 
@@ -303,7 +231,7 @@ onBeforeUnmount(() => {
       @pointerdown="onViewportPointerDown"
     >
       <div
-        v-if="showAbilityPreview"
+        v-show="showAbilityPreview"
         class="pointer-events-none absolute"
         :style="{
           left: '0px',
@@ -317,7 +245,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div
-        v-if="snapshot.gasCloud.active"
+        v-show="snapshot.gasCloud.active"
         class="pointer-events-none absolute"
         :style="{
           left: '0px',
@@ -348,7 +276,7 @@ onBeforeUnmount(() => {
         :class="{ 'button-press-pop': isExitPressing }"
         @click="onExit"
       >
-        <img src="/images/out.png" class="w-6 h-6"/>
+        <img src="/images/out.webp" class="w-6 h-6"/>
       </button>
       
     </section>

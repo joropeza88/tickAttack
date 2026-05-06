@@ -1,11 +1,12 @@
 import { computed, ref } from 'vue'
+import { audioManager } from '@/core/audioManager'
 
 type PreloadStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 interface UsePublicAssetPreloaderOptions {
   enabled: boolean
   imageUrls: readonly string[]
-  audioElements: Array<HTMLAudioElement | null>
+  audioUrls: readonly string[]
 }
 
 const loadImage = (src: string) =>
@@ -21,37 +22,10 @@ const loadImage = (src: string) =>
     }
   })
 
-const loadAudio = (audio: HTMLAudioElement) =>
-  new Promise<void>((resolve, reject) => {
-    const onReady = () => {
-      cleanup()
-      resolve()
-    }
-
-    const onError = () => {
-      cleanup()
-      reject(new Error(`No se pudo cargar el audio: ${audio.src}`))
-    }
-
-    const cleanup = () => {
-      audio.removeEventListener('canplaythrough', onReady)
-      audio.removeEventListener('error', onError)
-    }
-
-    if (audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
-      resolve()
-      return
-    }
-
-    audio.addEventListener('canplaythrough', onReady, { once: true })
-    audio.addEventListener('error', onError, { once: true })
-    audio.load()
-  })
-
 export function usePublicAssetPreloader(options: UsePublicAssetPreloaderOptions) {
   const status = ref<PreloadStatus>(options.enabled ? 'idle' : 'ready')
   const loadedCount = ref(0)
-  const totalCount = options.imageUrls.length + options.audioElements.filter(Boolean).length
+  const totalCount = options.imageUrls.length + options.audioUrls.length
   const errorMessage = ref('')
   let preloadPromise: Promise<void> | null = null
 
@@ -76,17 +50,16 @@ export function usePublicAssetPreloader(options: UsePublicAssetPreloaderOptions)
     errorMessage.value = ''
     status.value = 'loading'
 
-    const tasks = [
-      ...options.imageUrls.map((url) => () => loadImage(url)),
-      ...options.audioElements.filter((audio): audio is HTMLAudioElement => audio != null).map((audio) => () => loadAudio(audio))
-    ]
-
     preloadPromise = (async () => {
       try {
-        for (const task of tasks) {
-          await task()
+        for (const url of options.imageUrls) {
+          await loadImage(url)
           loadedCount.value += 1
         }
+
+        await audioManager.preload(options.audioUrls, (loadedAudioCount) => {
+          loadedCount.value = options.imageUrls.length + loadedAudioCount
+        })
 
         status.value = 'ready'
       } catch (error) {

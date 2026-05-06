@@ -61,7 +61,7 @@ const showHitShake = computed(() => props.hitFlash > 0)
     >
       <div
         class="dog-idle h-full w-full bg-contain bg-center bg-no-repeat drop-shadow-xl"
-        style="background-image: url('images/dog.png')"
+        style="background-image: url('images/dog.webp')"
       />
     </div>
   </div>

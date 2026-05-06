@@ -4,7 +4,6 @@ import type { GameStatus, LevelPhase } from '@/models/game'
 interface TickResult {
   regularWavesStarted: number
   lastWavesStarted: number
-  advancedLevel: boolean
 }
 
 export class StateManager {
@@ -80,7 +79,7 @@ export class StateManager {
 
   tick(deltaMs: number): TickResult {
     if (this.status !== 'running') {
-      return { regularWavesStarted: 0, lastWavesStarted: 0, advancedLevel: false }
+      return { regularWavesStarted: 0, lastWavesStarted: 0 }
     }
 
     this.hitFlash = Math.max(0, this.hitFlash - deltaMs)
@@ -91,10 +90,10 @@ export class StateManager {
 
       if (this.levelTransitionTimeLeftMs <= 0) {
         this.advanceLevel()
-        return { regularWavesStarted: 0, lastWavesStarted: 0, advancedLevel: true }
+        return { regularWavesStarted: 0, lastWavesStarted: 0 }
       }
 
-      return { regularWavesStarted: 0, lastWavesStarted: 0, advancedLevel: false }
+      return { regularWavesStarted: 0, lastWavesStarted: 0 }
     }
 
     const levelDurationMs = GAME_CONFIG.progression.levelDurationMs
@@ -136,7 +135,7 @@ export class StateManager {
       this.levelPhase = 'cleanup'
     }
 
-    return { regularWavesStarted, lastWavesStarted, advancedLevel: false }
+    return { regularWavesStarted, lastWavesStarted }
   }
 
   getLevel(): number {

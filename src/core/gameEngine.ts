@@ -183,7 +183,6 @@ export class GameEngine {
       lives: this.state.lives,
       level: this.state.getLevel(),
       abilityUsesRemaining: this.state.abilityUsesRemaining,
-      activeEnemyCount: this.enemyManager.getActiveEnemyCount(),
       waveStartCue: this.state.waveStartCue,
       levelPhase: this.state.levelPhase,
       upcomingLevel: this.state.getUpcomingLevel(),

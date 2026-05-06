@@ -9,13 +9,13 @@ const props = defineProps<{
 const enemyImage = computed(() => {
   if (props.enemy.state === 'crushed') {
     if (props.enemy.type === 'flea') {
-      return 'url(images/flea_crushed.png)'
+      return 'url(images/flea_crushed.webp)'
     }
 
-    return 'url(images/tick_crushed.png)'
+    return 'url(images/tick_crushed.webp)'
   }
 
-  return props.enemy.type === 'mother' ? 'url(images/mother_tick.png)' : 'url(images/tick.png)'
+  return props.enemy.type === 'mother' ? 'url(images/tick_mother_sprite.webp)' : 'url(images/tick_sprite.webp)'
 })
 
 const enemyClasses = computed(() => ({
@@ -37,7 +37,7 @@ const enemyVisualClasses = computed(() => ({
 const enemyVisualStyle = computed(() => {
   if (props.enemy.state === 'falling' && props.enemy.type === 'flea') {
     return {
-      backgroundImage: 'url(images/flea_sprite.png)',
+      backgroundImage: 'url(images/flea_sprite.webp)',
       backgroundSize: '400% 100%',
       '--flea-leap-duration': `${props.enemy.leapDurationMs}ms`
     }
@@ -45,14 +45,14 @@ const enemyVisualStyle = computed(() => {
 
   if (props.enemy.state === 'falling' && props.enemy.type === 'mother') {
     return {
-      backgroundImage: 'url(images/tick_mother_sprite.png)',
+      backgroundImage: 'url(images/tick_mother_sprite.webp)',
       backgroundSize: '400% 100%'
     }
   }
 
   if (props.enemy.state === 'falling' && props.enemy.type !== 'mother') {
     return {
-      backgroundImage: 'url(images/tick_sprite.png)',
+      backgroundImage: 'url(images/tick_sprite.webp)',
       backgroundSize: '400% 100%'
     }
   }
@@ -87,7 +87,7 @@ const showPartialSplat = computed(
       class="absolute inset-0 -z-10"
     >
       <img
-        src="/images/stain.png"
+        src="/images/stain.webp"
         alt=""
         class="absolute left-1/2 top-[60%] w-[132%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-50 select-none pointer-events-none"
       >
@@ -105,7 +105,7 @@ const showPartialSplat = computed(
       class="absolute inset-0 -z-10"
     >
       <img
-        src="/images/stain.png"
+        src="/images/stain.webp"
         alt=""
         class="absolute left-1/2 top-[60%] w-[96%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-25 select-none pointer-events-none"
       >

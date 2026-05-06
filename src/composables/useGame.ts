@@ -9,7 +9,6 @@ const initialSnapshot: GameSnapshot = {
   lives: GAME_CONFIG.initialLives,
   level: 1,
   abilityUsesRemaining: GAME_CONFIG.ability.usesPerLevel,
-  activeEnemyCount: 0,
   waveStartCue: 0,
   levelPhase: 'playing',
   upcomingLevel: 2,
@@ -72,7 +71,6 @@ export function useGame() {
     stop: () => engine.stop(),
     isRunning,
     tapAt: (localX: number, localY: number) => engine.tap(localX, localY),
-    deployGasCloudAt: (localX: number, localY: number) => engine.deployGasCloud(localX, localY),
-    pointerEnd: () => {}
+    deployGasCloudAt: (localX: number, localY: number) => engine.deployGasCloud(localX, localY)
   }
 }

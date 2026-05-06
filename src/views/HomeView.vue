@@ -8,15 +8,6 @@ const emit = defineEmits<{
   start: []
 }>()
 
-const preloadAudioElements =
-  typeof Audio === 'undefined'
-    ? []
-    : GAME_CONFIG.loading.publicAudioUrls.map((url) => new Audio(url))
-
-for (const audio of preloadAudioElements) {
-  audio.preload = 'auto'
-}
-
 const {
   errorMessage,
   isEnabled,
@@ -27,7 +18,7 @@ const {
 } = usePublicAssetPreloader({
   enabled: GAME_CONFIG.loading.preloadPublicAssetsBeforeStart,
   imageUrls: GAME_CONFIG.loading.publicAssetUrls,
-  audioElements: preloadAudioElements
+  audioUrls: GAME_CONFIG.loading.publicAudioUrls
 })
 
 const canStart = computed(() => !isEnabled || isReady.value)
@@ -50,7 +41,7 @@ void preload().catch(() => {})
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-[url('/images/game.png')] bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
+  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-[url('/images/game.webp')] bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
     <div class="absolute inset-0 bg-stone-950/45" />
 
     <section class="relative z-10 flex w-full flex-col items-center text-center">

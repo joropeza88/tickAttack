@@ -18,3 +18,5 @@ pnpm-debug.log*
 .vscode/
 .idea/
 *.swp
+engine.md 
+dog_game_prompt.md

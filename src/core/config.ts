@@ -4,7 +4,7 @@ export const GAME_CONFIG = {
   initialLives: 3,
   loading: {
     preloadPublicAssetsBeforeStart: true,
-    publicAssetUrls: ['images/flea_crushed.png', 'images/flea_sprite.png', 'images/game.png', 'images/game_night.png', 'images/dog.png', 'images/stain.png', 'images/tick_crushed.png', 'images/raid.png', 'images/tick_mother_sprite.png', 'images/tick_sprite.png'] as const,
+    publicAssetUrls: ['images/flea_crushed.webp', 'images/flea_sprite.webp', 'images/game.webp', 'images/game_night.webp', 'images/dog.webp', 'images/stain.webp', 'images/tick_crushed.webp', 'images/raid.webp', 'images/tick_mother_sprite.webp', 'images/tick_sprite.webp'] as const,
     publicAudioUrls: ['sounds/applause.mp3', 'sounds/cry.wav', 'sounds/bite.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
   },
   progression: {

@@ -54,7 +54,7 @@ defineEmits<{
         @pointerdown.prevent.stop="$emit('skillPointerdown', $event)"
       >
         <img
-          src="/images/raid.png"
+          src="/images/raid.webp"
           alt="Insecticida"
           class="ability-button-image drop-shadow-xl"
         >

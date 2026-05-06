@@ -1,4 +1,5 @@
 import { onBeforeUnmount, ref } from 'vue'
+import { audioManager } from '@/core/audioManager'
 
 interface UseButtonPressActionOptions {
   audioUrl?: string
@@ -14,13 +15,8 @@ export function useButtonPressAction(options: UseButtonPressActionOptions = {}) 
   } = options
 
   const isPressing = ref(false)
-  const buttonSound = typeof Audio !== 'undefined' ? new Audio(audioUrl) : null
   let resetPressTimer = 0
   let actionTimer = 0
-
-  if (buttonSound) {
-    buttonSound.preload = 'auto'
-  }
 
   const clearTimers = () => {
     window.clearTimeout(resetPressTimer)
@@ -31,10 +27,7 @@ export function useButtonPressAction(options: UseButtonPressActionOptions = {}) 
     clearTimers()
     isPressing.value = true
 
-    if (buttonSound) {
-      buttonSound.currentTime = audioOffsetSeconds
-      void buttonSound.play().catch(() => {})
-    }
+    void audioManager.play(audioUrl, { offsetSeconds: audioOffsetSeconds, volume: 1 })
 
     resetPressTimer = window.setTimeout(() => {
       isPressing.value = false
