@@ -158,10 +158,26 @@ watch(
       return
     }
 
+    triggerBiteVibration()
     void audioManager.play('sounds/bite.mp3', { offsetSeconds: 1, volume: 1 })
     void audioManager.play('sounds/cry.wav', { offsetSeconds: 0.25, volume: 1 })
   }
 )
+
+function triggerBiteVibration() {
+  try {
+    const supportsTouch = navigator.maxTouchPoints > 0
+      || window.matchMedia?.('(pointer: coarse)').matches
+
+    if (!supportsTouch || typeof navigator.vibrate !== 'function') {
+      return
+    }
+
+    navigator.vibrate(GAME_CONFIG.biteVibrationMs)
+  } catch {
+    // Ignore vibration failures on unsupported devices/browsers.
+  }
+}
 
 watch(
   () => snapshot.status,

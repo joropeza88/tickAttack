@@ -2,6 +2,7 @@ import type { Size, ViewportBounds } from '@/models/game'
 
 export const GAME_CONFIG = {
   initialLives: 3,
+  biteVibrationMs: 18,
   loading: {
     preloadPublicAssetsBeforeStart: true,
     publicAssetUrls: ['images/flea_crushed.webp', 'images/flea_sprite.webp', 'images/game.webp', 'images/game_night.webp', 'images/dog.webp', 'images/stain.webp', 'images/tick_crushed.webp', 'images/raid.webp', 'images/tick_mother_sprite.webp', 'images/tick_sprite.webp'] as const,
