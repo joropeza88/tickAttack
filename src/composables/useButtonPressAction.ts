@@ -27,7 +27,9 @@ export function useButtonPressAction(options: UseButtonPressActionOptions = {}) 
     clearTimers()
     isPressing.value = true
 
-    void audioManager.play(audioUrl, { offsetSeconds: audioOffsetSeconds, volume: 1 })
+    if (audioUrl.length > 0) {
+      void audioManager.play(audioUrl, { offsetSeconds: audioOffsetSeconds, volume: 1 })
+    }
 
     resetPressTimer = window.setTimeout(() => {
       isPressing.value = false

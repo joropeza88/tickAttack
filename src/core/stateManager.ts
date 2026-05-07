@@ -17,17 +17,19 @@ export class StateManager {
   hitCount = 0
   levelTimeRemainingMs: number = GAME_CONFIG.progression.levelDurationMs
   lastWaveBannerTimeLeftMs: number = 0
-  levelTransitionTimeLeftMs: number = 0
   waveStartCue = 0
   private levelElapsedMs = 0
   private nextRegularWaveStartMs = 0
   private nextLastWaveStartMs = 0
   private lastWaveStarted = false
 
-  reset(): void {
+  reset(level = 1): void {
     this.score = 0
     this.lives = GAME_CONFIG.initialLives
-    this.level = 1
+    this.level = Math.min(
+      GAME_CONFIG.progression.victoryLevel,
+      Math.max(1, Math.floor(level))
+    )
     this.abilityUsesRemaining = GAME_CONFIG.ability.usesPerLevel
     this.levelPhase = 'playing'
     this.status = 'idle'
@@ -35,7 +37,6 @@ export class StateManager {
     this.hitCount = 0
     this.levelTimeRemainingMs = GAME_CONFIG.progression.levelDurationMs
     this.lastWaveBannerTimeLeftMs = 0
-    this.levelTransitionTimeLeftMs = 0
     this.waveStartCue = 0
     this.levelElapsedMs = 0
     this.nextRegularWaveStartMs = 0
@@ -52,7 +53,7 @@ export class StateManager {
   }
 
   canUseAbility(): boolean {
-    return this.status === 'running' && this.levelPhase !== 'transition' && this.abilityUsesRemaining > 0
+    return this.status === 'running' && this.levelPhase !== 'level-complete' && this.abilityUsesRemaining > 0
   }
 
   consumeAbilityUse(): boolean {
@@ -65,7 +66,7 @@ export class StateManager {
   }
 
   applyHit(): void {
-    if (this.levelPhase === 'transition') {
+    if (this.levelPhase === 'level-complete') {
       return
     }
 
@@ -85,14 +86,7 @@ export class StateManager {
     this.hitFlash = Math.max(0, this.hitFlash - deltaMs)
     this.lastWaveBannerTimeLeftMs = Math.max(0, this.lastWaveBannerTimeLeftMs - deltaMs)
 
-    if (this.levelPhase === 'transition') {
-      this.levelTransitionTimeLeftMs = Math.max(0, this.levelTransitionTimeLeftMs - deltaMs)
-
-      if (this.levelTransitionTimeLeftMs <= 0) {
-        this.advanceLevel()
-        return { regularWavesStarted: 0, lastWavesStarted: 0 }
-      }
-
+    if (this.levelPhase === 'level-complete') {
       return { regularWavesStarted: 0, lastWavesStarted: 0 }
     }
 
@@ -194,16 +188,23 @@ export class StateManager {
     this.status = 'victory'
     this.levelPhase = 'cleanup'
     this.lastWaveBannerTimeLeftMs = 0
-    this.levelTransitionTimeLeftMs = 0
   }
 
-  beginLevelTransition(): void {
-    if (this.levelPhase === 'transition') {
+  markLevelComplete(): void {
+    if (this.levelPhase === 'level-complete') {
       return
     }
 
-    this.levelPhase = 'transition'
-    this.levelTransitionTimeLeftMs = GAME_CONFIG.progression.levelTransitionDurationMs
+    this.levelPhase = 'level-complete'
+    this.lastWaveBannerTimeLeftMs = 0
+  }
+
+  startNextLevel(): void {
+    if (this.status !== 'running' || this.levelPhase !== 'level-complete') {
+      return
+    }
+
+    this.advanceLevel()
   }
 
   private advanceLevel(): void {
@@ -213,7 +214,6 @@ export class StateManager {
     this.abilityUsesRemaining = GAME_CONFIG.ability.usesPerLevel
     this.levelTimeRemainingMs = GAME_CONFIG.progression.levelDurationMs
     this.lastWaveBannerTimeLeftMs = 0
-    this.levelTransitionTimeLeftMs = 0
     this.levelElapsedMs = 0
     this.nextRegularWaveStartMs = 0
     this.nextLastWaveStartMs = 0

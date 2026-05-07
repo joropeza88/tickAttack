@@ -20,7 +20,6 @@ export const GAME_CONFIG = {
     maxEnemiesPerWave: 4,
     lastWaveExtraEnemies: 1,
     lastWaveChanceMultiplier: 1.45,
-    levelTransitionDurationMs: 1800,
     victoryLevel: 13
   },
   player: {

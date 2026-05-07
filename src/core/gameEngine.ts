@@ -24,6 +24,7 @@ export class GameEngine {
   }
   private frameId = 0
   private lastFrame = 0
+  private startLevel = 1
 
   constructor({ onFrame }: EngineOptions) {
     this.onFrame = onFrame
@@ -36,8 +37,12 @@ export class GameEngine {
     this.emit()
   }
 
-  start(): void {
-    this.state.reset()
+  start(level = 1): void {
+    this.startLevel = Math.min(
+      GAME_CONFIG.progression.victoryLevel,
+      Math.max(1, Math.floor(level))
+    )
+    this.state.reset(this.startLevel)
     this.state.start()
     this.enemyManager.reset()
     this.player = this.playerController.createPlayer(this.viewport)
@@ -58,7 +63,12 @@ export class GameEngine {
   }
 
   restart(): void {
-    this.start()
+    this.start(this.startLevel)
+  }
+
+  continueToNextLevel(): void {
+    this.state.startNextLevel()
+    this.emit()
   }
 
   tap(localX: number, localY: number): TapResolution {
@@ -135,7 +145,7 @@ export class GameEngine {
       if (this.state.hasCompletedVictoryLevel()) {
         this.state.win()
       } else {
-        this.state.beginLevelTransition()
+        this.state.markLevelComplete()
       }
     }
 
@@ -190,7 +200,6 @@ export class GameEngine {
       levelProgress: this.state.getLevelProgress(),
       levelTimeRemainingMs: this.state.levelTimeRemainingMs,
       lastWaveBannerTimeLeftMs: this.state.lastWaveBannerTimeLeftMs,
-      levelTransitionTimeLeftMs: this.state.levelTransitionTimeLeftMs,
       player: this.player,
       gasCloud: {
         active: this.gasCloud.active,

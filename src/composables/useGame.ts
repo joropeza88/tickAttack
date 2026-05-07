@@ -16,7 +16,6 @@ const initialSnapshot: GameSnapshot = {
   levelProgress: 0,
   levelTimeRemainingMs: GAME_CONFIG.progression.levelDurationMs,
   lastWaveBannerTimeLeftMs: 0,
-  levelTransitionTimeLeftMs: 0,
   player: {
     id: 'player',
     position: { x: 0, y: 0 },
@@ -33,7 +32,7 @@ const initialSnapshot: GameSnapshot = {
   hitCount: 0
 }
 
-export function useGame() {
+export function useGame(startLevel = 1) {
   const containerRef = ref<HTMLElement | null>(null)
   const snapshot = reactive<GameSnapshot>({ ...initialSnapshot })
   const engine = new GameEngine({
@@ -66,8 +65,9 @@ export function useGame() {
   return {
     containerRef,
     snapshot,
-    start: () => engine.start(),
+    start: (level = startLevel) => engine.start(level),
     restart: () => engine.restart(),
+    continueToNextLevel: () => engine.continueToNextLevel(),
     stop: () => engine.stop(),
     isRunning,
     tapAt: (localX: number, localY: number) => engine.tap(localX, localY),

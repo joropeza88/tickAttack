@@ -1,5 +1,5 @@
 export type GameStatus = 'idle' | 'running' | 'game-over' | 'victory'
-export type LevelPhase = 'playing' | 'last-wave' | 'cleanup' | 'transition'
+export type LevelPhase = 'playing' | 'last-wave' | 'cleanup' | 'level-complete'
 
 export interface Vector2D {
   x: number
@@ -78,7 +78,6 @@ export interface GameSnapshot {
   levelProgress: number
   levelTimeRemainingMs: number
   lastWaveBannerTimeLeftMs: number
-  levelTransitionTimeLeftMs: number
   player: PlayerEntity
   gasCloud: GasCloudEntity
   enemies: EnemyEntity[]

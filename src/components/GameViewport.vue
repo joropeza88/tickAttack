@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 import DogSprite from '@/components/DogSprite.vue'
 import EnemySprite from '@/components/EnemySprite.vue'
+import ExitButton from '@/components/ExitButton.vue'
 import GameHud from '@/components/GameHud.vue'
 import LevelIntroBanner from '@/components/LevelIntroBanner.vue'
 import GameOverlay from '@/components/GameOverlay.vue'
@@ -10,14 +11,20 @@ import { GAME_CONFIG } from '@/core/config'
 import { audioManager } from '@/core/audioManager'
 import { useGame } from '@/composables/useGame'
 
+const props = defineProps<{
+  startLevel: number
+}>()
+
 const emit = defineEmits<{
   exit: []
   completed: []
+  levelCompleted: [level: number]
 }>()
 
-const { containerRef, snapshot, isRunning, restart, start, tapAt, deployGasCloudAt } = useGame()
+const { containerRef, snapshot, start, continueToNextLevel, tapAt, deployGasCloudAt } = useGame(props.startLevel)
 const isLastWaveBannerVisible = computed(() => isRunning.value && snapshot.lastWaveBannerTimeLeftMs > 0)
-const isLevelTransitionVisible = computed(() => isRunning.value && snapshot.levelTransitionTimeLeftMs > 0)
+const isLevelCompleteVisible = computed(() => isRunning.value && snapshot.levelPhase === 'level-complete')
+const isRunning = computed(() => snapshot.status === 'running')
 const isNightLevel = computed(() => snapshot.level % 2 === 0)
 const backgroundImageUrl = computed(() =>
   isNightLevel.value ? '/images/game_night.webp' : '/images/game.webp'
@@ -32,8 +39,10 @@ const abilityAim = reactive({
 const showAbilityPreview = computed(
   () => abilityAim.active && abilityAim.insideViewport && snapshot.abilityUsesRemaining > 0
 )
-const { isPressing: isExitPressing, runPressAction: runExitPressAction } = useButtonPressAction()
 const { isPressing: isRetryPressing, runPressAction: runRetryPressAction } = useButtonPressAction()
+const { isPressing: isNextLevelPressing, runPressAction: runNextLevelPressAction } = useButtonPressAction({
+  audioUrl: ''
+})
 
 const startBackgroundMusic = async () => {
   await audioManager.play('sounds/music.mp3', { loop: true, volume: 0.3, stopPrevious: true })
@@ -52,7 +61,7 @@ const onViewportPointerDown = (event: PointerEvent) => {
     return
   }
 
-  if (abilityAim.active) {
+  if (abilityAim.active || isLevelCompleteVisible.value) {
     return
   }
 
@@ -122,7 +131,7 @@ const onWindowPointerUp = (event: PointerEvent) => {
 }
 
 const onSkillPointerDown = (event: PointerEvent) => {
-  if (!isRunning.value || snapshot.abilityUsesRemaining <= 0) {
+  if (!isRunning.value || isLevelCompleteVisible.value || snapshot.abilityUsesRemaining <= 0) {
     return
   }
 
@@ -139,12 +148,18 @@ const onSkillPointerDown = (event: PointerEvent) => {
 const onRestart = () => {
   runRetryPressAction(() => {
     void startBackgroundMusic()
-    restart()
+    start(snapshot.level)
   })
 }
 
 const onExit = () => {
-  runExitPressAction(() => emit('exit'))
+  emit('exit')
+}
+
+const onContinueToNextLevel = () => {
+  runNextLevelPressAction(() => {
+    continueToNextLevel()
+  })
 }
 
 watch(
@@ -180,9 +195,19 @@ function triggerBiteVibration() {
 }
 
 watch(
+  () => snapshot.levelPhase,
+  (phase, previousPhase) => {
+    if (phase === 'level-complete' && previousPhase !== 'level-complete') {
+      emit('levelCompleted', snapshot.level)
+    }
+  }
+)
+
+watch(
   () => snapshot.status,
   (status, previousStatus) => {
     if (status === 'victory' && previousStatus !== 'victory') {
+      emit('levelCompleted', snapshot.level)
       emit('completed')
     }
   }
@@ -203,7 +228,7 @@ onMounted(() => {
   window.addEventListener('pointermove', onWindowPointerMove)
   window.addEventListener('pointerup', onWindowPointerUp)
   window.addEventListener('pointercancel', onWindowPointerUp)
-  start()
+  start(props.startLevel)
   void startBackgroundMusic()
 })
 
@@ -286,15 +311,7 @@ onBeforeUnmount(() => {
         :hit-count="snapshot.hitCount"
       />
 
-      
-      <button
-        class="absolute left-2 bottom-6 z-20 rounded-full bg-white p-3 transition hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100"
-        :class="{ 'button-press-pop': isExitPressing }"
-        @click="onExit"
-      >
-        <img src="/images/out.webp" class="w-6 h-6"/>
-      </button>
-      
+      <ExitButton @action="onExit" />
     </section>
 
     <LevelIntroBanner
@@ -305,12 +322,18 @@ onBeforeUnmount(() => {
       variant="warning"
     />
 
-    <LevelIntroBanner
-      v-if="isLevelTransitionVisible"
-      :key="`next-level-${snapshot.upcomingLevel}`"
-      eyebrow="Siguiente nivel"
-      :title="`Nivel ${snapshot.upcomingLevel}`"
-      variant="level"
+    <GameOverlay
+      v-if="isLevelCompleteVisible"
+      eyebrow="Nivel superado"
+      :title="`Nivel ${snapshot.level} completado`"
+      :description="`Listo para comenzar el nivel ${snapshot.upcomingLevel}.`"
+      :is-button-pressed="isNextLevelPressing"
+      :is-disabled="false"
+      :is-loading="false"
+      :show-progress="false"
+      :progress="0"
+      button-label="Siguiente"
+      @action="onContinueToNextLevel"
     />
 
     <GameOverlay
