@@ -44,10 +44,6 @@ const { isPressing: isNextLevelPressing, runPressAction: runNextLevelPressAction
   audioUrl: ''
 })
 
-const startBackgroundMusic = async () => {
-  await audioManager.play('sounds/music.mp3', { loop: true, volume: 0.3, stopPrevious: true })
-}
-
 const playWaveCue = () => {
   if (snapshot.status !== 'running') {
     return
@@ -147,7 +143,6 @@ const onSkillPointerDown = (event: PointerEvent) => {
 
 const onRestart = () => {
   runRetryPressAction(() => {
-    void startBackgroundMusic()
     start(snapshot.level)
   })
 }
@@ -229,7 +224,6 @@ onMounted(() => {
   window.addEventListener('pointerup', onWindowPointerUp)
   window.addEventListener('pointercancel', onWindowPointerUp)
   start(props.startLevel)
-  void startBackgroundMusic()
 })
 
 onBeforeUnmount(() => {
@@ -241,7 +235,6 @@ onBeforeUnmount(() => {
   audioManager.stop('sounds/crush.mp3')
   audioManager.stop('sounds/chajchas.mp3')
   audioManager.stop('sounds/spray.mp3')
-  audioManager.stop('sounds/music.mp3')
 })
 </script>
 
@@ -307,7 +300,7 @@ onBeforeUnmount(() => {
 
       <DogSprite
         :player="snapshot.player"
-        :hit-flash="snapshot.hitFlash"
+        :hit-flash="snapshot.status === 'game-over' ? 0 : snapshot.hitFlash"
         :hit-count="snapshot.hitCount"
       />
 

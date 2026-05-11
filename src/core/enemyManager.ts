@@ -25,7 +25,7 @@ export class EnemyManager {
     this.activeEnemyCount = 0
   }
 
-  update(deltaMs: number, viewport: ViewportBounds): void {
+  update(deltaMs: number, viewport: ViewportBounds, player: PlayerEntity): void {
     const deltaSeconds = deltaMs / 1000
 
     this.enemies = this.enemies.filter((enemy) => {
@@ -46,6 +46,7 @@ export class EnemyManager {
       this.updateLeap(enemy, deltaMs)
       this.updateSpawnDrift(enemy, deltaMs, viewport, deltaSeconds)
       this.updateSwerve(enemy, deltaMs, viewport, deltaSeconds)
+      this.updateSeekPlayer(enemy, player, viewport, deltaSeconds)
 
       if (enemy.position.y > viewport.height + GAME_CONFIG.enemy.despawnOffset) {
         this.activeEnemyCount = Math.max(0, this.activeEnemyCount - 1)
@@ -224,6 +225,48 @@ export class EnemyManager {
     if (enemy.spawnDriftTimeLeftMs <= 0) {
       enemy.spawnDriftVelocityX = 0
     }
+  }
+
+  private updateSeekPlayer(enemy: EnemyEntity, player: PlayerEntity, viewport: ViewportBounds, deltaSeconds: number): void {
+    const seekStartY = viewport.height * GAME_CONFIG.enemy.seekPlayerStartRatioY
+
+    if (enemy.position.y + enemy.size.height * 0.5 < seekStartY) {
+      return
+    }
+
+    const playerLeft = player.position.x
+    const playerRight = player.position.x + player.size.width
+    const impactInset = GAME_CONFIG.enemy.seekPlayerImpactInsetPx
+    const targetLeft = playerLeft + impactInset
+    const targetRight = playerRight - impactInset
+    const enemyLeft = enemy.position.x
+    const enemyRight = enemy.position.x + enemy.size.width
+
+    if (enemyRight >= targetLeft && enemyLeft <= targetRight) {
+      return
+    }
+
+    const targetX =
+      enemyRight < playerLeft
+        ? targetLeft - enemy.size.width
+        : targetRight
+    const distanceX = targetX - enemy.position.x
+
+    if (Math.abs(distanceX) < 1) {
+      enemy.position.x = this.clampEnemyX(targetX, enemy.size.width, viewport.width)
+      return
+    }
+
+    const maxStep =
+      enemy.currentSpeed *
+      GAME_CONFIG.enemy.seekPlayerHorizontalSpeedMultiplier *
+      deltaSeconds
+
+    const nextX =
+      enemy.position.x +
+      Math.sign(distanceX) * Math.min(Math.abs(distanceX), maxStep)
+
+    enemy.position.x = this.clampEnemyX(nextX, enemy.size.width, viewport.width)
   }
 
   private spawn(level: number, viewport: ViewportBounds, chanceMultiplier: number): void {

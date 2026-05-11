@@ -80,6 +80,10 @@ class AudioManager {
     source.start(0, Math.min(offsetSeconds, Math.max(0, buffer.duration - 0.01)))
   }
 
+  isPlaying(url: string): boolean {
+    return (this.activeSources.get(url)?.length ?? 0) > 0
+  }
+
   stop(url: string): void {
     const sources = this.activeSources.get(url)
     if (!sources) {

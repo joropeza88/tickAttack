@@ -133,7 +133,7 @@ export class GameEngine {
       )
     }
 
-    this.enemyManager.update(deltaMs, this.viewport)
+    this.enemyManager.update(deltaMs, this.viewport, this.player)
 
     this.updateGasCloud(deltaMs)
 

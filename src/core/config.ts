@@ -5,7 +5,7 @@ export const GAME_CONFIG = {
   biteVibrationMs: 18,
   loading: {
     preloadPublicAssetsBeforeStart: true,
-    publicAssetUrls: ['images/flea_crushed.webp', 'images/flea_sprite.webp', 'images/game.webp', 'images/game_night.webp', 'images/dog.webp', 'images/stain.webp', 'images/tick_crushed.webp', 'images/raid.webp', 'images/tick_mother_sprite.webp', 'images/tick_sprite.webp'] as const,
+    publicAssetUrls: ['images/dog_sprite.webp', 'images/dog_sprite_shake.webp', 'images/flea_sprite.webp', 'images/game.webp', 'images/game_night.webp', 'images/heart_sprite.webp', 'images/raid.webp', 'images/tick_mother_sprite.webp', 'images/tick_sprite.webp'] as const,
     publicAudioUrls: ['sounds/applause.mp3', 'sounds/cry.mp3', 'sounds/bite.mp3', 'sounds/button-press.mp3', 'sounds/chajchas.mp3', 'sounds/crush.mp3', 'sounds/spray.mp3', 'sounds/music.mp3'] as const
   },
   progression: {
@@ -24,6 +24,7 @@ export const GAME_CONFIG = {
   },
   player: {
     height: 88,
+    frameAspectRatio: 770 / 280,
     bottomOffset: 8
   },
   ability: {
@@ -109,6 +110,9 @@ export const GAME_CONFIG = {
     childSpawnSpread: 26,
     childSpawnDriftDurationMs: 320,
     childSpawnDriftVelocityX: 82,
+    seekPlayerStartRatioY: 0.58,
+    seekPlayerHorizontalSpeedMultiplier: 1.1,
+    seekPlayerImpactInsetPx: 56,
     despawnOffset: 120
   },
   viewport: {

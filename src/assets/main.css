@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
 
 :root {
   color-scheme: light;
@@ -13,6 +14,7 @@ html,
 body,
 #app {
   height: 100vh;
+  font-family: 'Fredoka', sans-serif;
 }
 
 body {
@@ -49,69 +51,73 @@ body {
   filter: brightness(0.96);
 }
 
-.dog-idle {
-  animation: bounceSoft 1.2s ease-in-out infinite;
-  transform-origin: center bottom;
+.dog-sprite-default {
+  background-repeat: no-repeat;
+  background-size: 300% 100%;
+  background-position: 0 0;
+  image-rendering: auto;
+  will-change: background-position;
+  animation: dogSpriteFrames 0.5s step-end infinite;
 }
 
-.dog-hit-shake {
-  animation: dogHitShake 0.22s ease-out;
-  transform-origin: center bottom;
-  will-change: transform;
-}
-
-.dog-fur-particle {
-  position: absolute;
-  display: block;
-  border-radius: 999px 999px 999px 999px / 70% 70% 30% 30%;
-  background: linear-gradient(180deg, #f6e8c9 0%, #ddc39b 100%);
-  opacity: 0;
-  transform: translate(-50%, -50%) rotate(var(--fur-rotate, 0deg)) scale(0.8);
-  animation: furBurst 0.42s ease-out forwards;
-  will-change: transform, opacity;
+.dog-sprite-shake {
+  background-repeat: no-repeat;
+  background-size: 300% 100%;
+  background-position: 0 0;
+  image-rendering: auto;
+  will-change: background-position;
+  animation: dogSpriteFrames 0.22s step-end infinite;
 }
 
 .tick-crushed {
   transform-origin: center;
-  animation: tickCrushed 0.26s ease-out forwards;
 }
 
 .enemy-hit {
   transform-origin: center;
-  animation: enemyHitPulse 0.2s ease-out forwards;
 }
 
 .tick-sprite-sheet {
   animation: tickSpriteFrames 0.34s steps(4) infinite;
   background-position: 0 0;
   image-rendering: auto;
+  will-change: background-position;
 }
 
 .tick-mother-sprite-sheet {
   animation: tickSpriteFrames 0.45s steps(4) infinite;
   background-position: 0 0;
   image-rendering: auto;
+  will-change: background-position;
 }
 
 .flea-sprite-sheet {
   animation: tickSpriteFrames 0.28s steps(4) infinite;
   background-position: 0 0;
   image-rendering: auto;
+  will-change: background-position;
+}
+
+.enemy-sprite-crushed {
+  animation: none;
 }
 
 .flea-leap-active {
   transform-origin: center bottom;
-  animation:
-    tickSpriteFrames 0.28s steps(4) infinite,
-    fleaLeapSquash var(--flea-leap-duration, 180ms) ease-out 1;
+  animation: tickSpriteFrames 0.28s steps(4) infinite;
 }
 
 .score-pop {
   font-size: 1.05rem;
   font-weight: 900;
   line-height: 1;
-  color: #dcfce7;
+  color: #ce1126;
   letter-spacing: 0.02em;
+  -webkit-text-stroke: 4px #ffd230;
+  paint-order: stroke fill;
+  text-shadow:
+    0 6px 14px rgba(142, 18, 38, 0.32),
+    0 2px 0 #8e1226;
   animation: scorePopFloat 0.6s ease-out forwards;
   will-change: transform, opacity;
 }
@@ -132,30 +138,33 @@ body {
   will-change: transform, opacity;
 }
 
-.heart-chip {
-  display: flex;
-  height: 2rem;
-  width: 2rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  transition: transform 180ms ease, opacity 180ms ease, background-color 180ms ease;
+.heart-sprite {
+  height: 1.175rem;
+  width: 1.3rem;
+  background-image: url('/images/heart_sprite.webp');
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  background-position: 0 0;
+  image-rendering: auto;
+  transform-origin: center;
 }
 
-.heart-chip-live {
-  background: rgba(255, 255, 255, 0.72);
-  color: #ef476f;
+.heart-sprite-live {
+  opacity: 1;
+  transform: scale(1);
+  background-position: 0 0;
 }
 
-.heart-chip-lost {
-  background: rgba(226, 232, 240, 0.34);
-  color: rgba(148, 163, 184, 0.48);
-  animation: heartLost 0.28s ease-out forwards;
+.heart-sprite-lost {
+  background-position: 100% 0;
+  animation: heartSpriteLose 0.42s ease-out forwards;
 }
 
-.heart-glyph {
-  font-size: 1.2rem;
-  line-height: 1;
+.heart-sprite-hidden {
+  opacity: 0;
+  transform: scale(0);
+  background-position: 100% 0;
+  pointer-events: none;
 }
 
 .level-progress-track {
@@ -251,14 +260,25 @@ body {
 }
 
 .level-intro-warning {
+  padding: 0;
+  border: 0;
   background: transparent;
-  color: rgba(255, 59, 59, 0.58);
+  color: #ce1126;
   box-shadow: none;
   backdrop-filter: none;
+  animation: lastWaveBannerPulse 1.2s ease-out forwards;
 }
 
 .level-intro-warning p:first-child {
-  color: rgba(255, 59, 59, 0.58);
+  color: #ce1126;
+}
+
+.level-intro-warning p:last-child {
+  -webkit-text-stroke: 6px #ffd230;
+  paint-order: stroke fill;
+  text-shadow:
+    0 8px 18px rgba(142, 18, 38, 0.4),
+    0 2px 0 #8e1226;
 }
 
 .level-intro-level {
@@ -270,73 +290,20 @@ body {
   color: rgba(209, 250, 229, 0.92);
 }
 
-@keyframes furBurst {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(-8deg) scale(0.78);
+@keyframes dogSpriteFrames {
+  0%,
+  33.333% {
+    background-position: 0 0;
   }
 
-  18% {
-    opacity: 0.92;
+  33.334%,
+  66.666% {
+    background-position: 50% 0;
   }
 
+  66.667%,
   100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--fur-dx)), calc(-50% + var(--fur-dy))) rotate(18deg) scale(1);
-  }
-}
-
-@keyframes dogHitShake {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-
-  18% {
-    transform: translate3d(-5px, 0, 0) rotate(-5deg);
-  }
-
-  38% {
-    transform: translate3d(5px, -1px, 0) rotate(5deg);
-  }
-
-  58% {
-    transform: translate3d(-4px, 0, 0) rotate(-4deg);
-  }
-
-  78% {
-    transform: translate3d(3px, 0, 0) rotate(3deg);
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-}
-
-@keyframes tickCrushed {
-  0% {
-    transform: scale(0.96) rotate(-6deg);
-  }
-
-  60% {
-    transform: scale(1.08) rotate(3deg);
-  }
-
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-@keyframes enemyHitPulse {
-  0% {
-    transform: scale(1);
-  }
-
-  35% {
-    transform: scale(1.12, 0.9);
-  }
-
-  100% {
-    transform: scale(1);
+    background-position: 100% 0;
   }
 }
 
@@ -346,25 +313,7 @@ body {
   }
 
   to {
-    background-position: 133.333333% 0;
-  }
-}
-
-@keyframes fleaLeapSquash {
-  0% {
-    transform: scale(1, 1);
-  }
-
-  22% {
-    transform: scale(1.14, 0.84);
-  }
-
-  56% {
-    transform: scale(0.9, 1.12);
-  }
-
-  100% {
-    transform: scale(1, 1);
+    background-position: 100% 0;
   }
 }
 
@@ -382,6 +331,28 @@ body {
   100% {
     opacity: 0;
     transform: translate(-50%, -24px) scale(1.02);
+  }
+}
+
+@keyframes lastWaveBannerPulse {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.45);
+  }
+
+  18% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04);
+  }
+
+  55% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.12);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-52px) scale(1.2);
   }
 }
 
@@ -404,20 +375,20 @@ body {
   }
 }
 
-@keyframes heartLost {
+@keyframes heartSpriteLose {
   0% {
     opacity: 1;
     transform: scale(1);
   }
 
-  45% {
-    opacity: 0.75;
-    transform: scale(1.2);
+  35% {
+    opacity: 1;
+    transform: scale(1.45);
   }
 
   100% {
-    opacity: 0.52;
-    transform: scale(0.7);
+    opacity: 0;
+    transform: scale(0.2);
   }
 }
 

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+import { onBeforeUnmount, ref, watch } from 'vue'
+
+const props = defineProps<{
   score: number
   lives: number
   level: number
@@ -9,6 +11,59 @@ defineProps<{
 }>()
 
 const heartSlots = [0, 1, 2]
+const losingHeartSlots = ref<number[]>([])
+const losingHeartTimers = new Map<number, ReturnType<typeof setTimeout>>()
+
+const triggerLostHeart = (slot: number) => {
+  const existingTimer = losingHeartTimers.get(slot)
+  if (existingTimer) {
+    clearTimeout(existingTimer)
+  }
+
+  if (!losingHeartSlots.value.includes(slot)) {
+    losingHeartSlots.value = [...losingHeartSlots.value, slot]
+  }
+
+  const timer = setTimeout(() => {
+    losingHeartSlots.value = losingHeartSlots.value.filter((activeSlot) => activeSlot !== slot)
+    losingHeartTimers.delete(slot)
+  }, 420)
+
+  losingHeartTimers.set(slot, timer)
+}
+
+const heartSpriteClass = (slot: number) => {
+  if (slot < props.lives) {
+    return 'heart-sprite-live'
+  }
+
+  if (losingHeartSlots.value.includes(slot)) {
+    return 'heart-sprite-lost'
+  }
+
+  return 'heart-sprite-hidden'
+}
+
+watch(
+  () => props.lives,
+  (lives, previousLives) => {
+    if (previousLives == null || lives >= previousLives) {
+      return
+    }
+
+    for (let slot = lives; slot < previousLives; slot += 1) {
+      triggerLostHeart(slot)
+    }
+  }
+)
+
+onBeforeUnmount(() => {
+  for (const timer of losingHeartTimers.values()) {
+    clearTimeout(timer)
+  }
+
+  losingHeartTimers.clear()
+})
 
 defineEmits<{
   skillPointerdown: [event: PointerEvent]
@@ -18,20 +73,22 @@ defineEmits<{
 <template>
   <div class="pointer-events-none absolute inset-x-0 top-12 z-10 px-3">
     <div class="flex items-center justify-between gap-3">
-      <span class="text-border text-white text-xl leading-none font-black">
-          NIVEL {{ level }} <br/>
-          PUNTOS {{ score }}
-      </span>
+      <div class="flex flex-col leading-none">
+        <span class="text-white text-xl font-black">
+          Puntos: {{ score }}
+        </span>
+        <span class="mt-1 text-[0.8rem] font-bold uppercase tracking-[0.12em] text-[#ffd230]">
+          Nivel {{ level }}
+        </span>
+      </div>
 
       <div class="flex items-center gap-2 px-3 py-2">
         <div
           v-for="slot in heartSlots"
           :key="slot"
-          class="heart-chip"
-          :class="slot < lives ? 'heart-chip-live' : 'heart-chip-lost'"
-        >
-          <span class="heart-glyph">♥</span>
-        </div>
+          class="heart-sprite"
+          :class="heartSpriteClass(slot)"
+        />
       </div>
     </div>
 

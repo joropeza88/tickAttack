@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { loadProgress, updateProgressForCompletedLevel } from '@/core/progressStorage'
+import { audioManager } from '@/core/audioManager'
 import GameView from '@/views/GameView.vue'
 import HomeView from '@/views/HomeView.vue'
 import LevelSelectView from '@/views/LevelSelectView.vue'
@@ -30,6 +31,29 @@ const onLevelSelected = (level: number) => {
 const onLevelCompleted = (level: number) => {
   progress.value = updateProgressForCompletedLevel(level)
 }
+
+const syncBackgroundMusic = async (screen: typeof currentScreen.value) => {
+  const shouldPlayMusic = screen === 'level-select' || screen === 'game'
+
+  if (!shouldPlayMusic) {
+    audioManager.stop('sounds/music.mp3')
+    return
+  }
+
+  if (audioManager.isPlaying('sounds/music.mp3')) {
+    return
+  }
+
+  await audioManager.play('sounds/music.mp3', { loop: true, volume: 0.3, stopPrevious: true })
+}
+
+watch(currentScreen, (screen) => {
+  void syncBackgroundMusic(screen)
+})
+
+onMounted(() => {
+  void syncBackgroundMusic(currentScreen.value)
+})
 </script>
 
 <template>
