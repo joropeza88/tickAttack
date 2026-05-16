@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useButtonPressAction } from '@/composables/useButtonPressAction'
 import { audioManager } from '@/core/audioManager'
+import { publicAssetUrl } from '@/utils/publicAssetUrl'
 
 const emit = defineEmits<{
   exit: []
@@ -9,6 +10,7 @@ const emit = defineEmits<{
 
 const { isPressing: isExitPressing, runPressAction } = useButtonPressAction()
 const confettiBursts = computed(() => [0, 1] as const)
+const backgroundImageUrl = publicAssetUrl('images/game.webp')
 
 const onExit = () => {
   runPressAction(() => emit('exit'))
@@ -45,7 +47,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-[url('/images/game.webp')] bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
+  <main
+    class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white"
+    :style="{ backgroundImage: `url('${backgroundImageUrl}')` }"
+  >
     <div class="absolute inset-0 bg-emerald-950/45" />
 
     <div class="pointer-events-none absolute inset-0 z-10 overflow-hidden">

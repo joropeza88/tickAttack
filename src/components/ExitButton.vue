@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useButtonPressAction } from '@/composables/useButtonPressAction'
+import { publicAssetUrl } from '@/utils/publicAssetUrl'
 
 const emit = defineEmits<{
   action: []
 }>()
 
 const { isPressing, runPressAction } = useButtonPressAction()
+const exitIconUrl = publicAssetUrl('images/out.webp')
 
 const onAction = () => {
   runPressAction(() => emit('action'))
@@ -18,6 +20,6 @@ const onAction = () => {
     :class="{ 'button-press-pop': isPressing }"
     @click="onAction"
   >
-    <img src="/images/out.webp" class="h-6 w-6">
+    <img :src="exitIconUrl" class="h-6 w-6">
   </button>
 </template>

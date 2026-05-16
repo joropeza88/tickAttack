@@ -10,6 +10,7 @@ import { useButtonPressAction } from '@/composables/useButtonPressAction'
 import { GAME_CONFIG } from '@/core/config'
 import { audioManager } from '@/core/audioManager'
 import { useGame } from '@/composables/useGame'
+import { publicAssetUrl } from '@/utils/publicAssetUrl'
 
 const props = defineProps<{
   startLevel: number
@@ -27,7 +28,9 @@ const isLevelCompleteVisible = computed(() => isRunning.value && snapshot.levelP
 const isRunning = computed(() => snapshot.status === 'running')
 const isNightLevel = computed(() => snapshot.level % 2 === 0)
 const backgroundImageUrl = computed(() =>
-  isNightLevel.value ? '/images/game_night.webp' : '/images/game.webp'
+  isNightLevel.value
+    ? publicAssetUrl('images/game_night.webp')
+    : publicAssetUrl('images/game.webp')
 )
 const abilityAim = reactive({
   active: false,

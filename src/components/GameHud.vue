@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue'
+import { publicAssetUrl } from '@/utils/publicAssetUrl'
 
 const props = defineProps<{
   score: number
@@ -13,6 +14,8 @@ const props = defineProps<{
 const heartSlots = [0, 1, 2]
 const losingHeartSlots = ref<number[]>([])
 const losingHeartTimers = new Map<number, ReturnType<typeof setTimeout>>()
+const heartSpriteUrl = publicAssetUrl('images/heart_sprite.webp')
+const abilityImageUrl = publicAssetUrl('images/raid.webp')
 
 const triggerLostHeart = (slot: number) => {
   const existingTimer = losingHeartTimers.get(slot)
@@ -88,6 +91,7 @@ defineEmits<{
           :key="slot"
           class="heart-sprite"
           :class="heartSpriteClass(slot)"
+          :style="{ '--heart-sprite-url': `url('${heartSpriteUrl}')` }"
         />
       </div>
     </div>
@@ -111,7 +115,7 @@ defineEmits<{
         @pointerdown.prevent.stop="$emit('skillPointerdown', $event)"
       >
         <img
-          src="/images/raid.webp"
+          :src="abilityImageUrl"
           alt="Insecticida"
           class="ability-button-image drop-shadow-xl"
         >

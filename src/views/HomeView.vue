@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { GAME_CONFIG } from '@/core/config'
 import { useButtonPressAction } from '@/composables/useButtonPressAction'
 import { usePublicAssetPreloader } from '@/composables/usePublicAssetPreloader'
+import { publicAssetUrl } from '@/utils/publicAssetUrl'
 
 const emit = defineEmits<{
   start: []
@@ -24,6 +25,7 @@ const {
 const canStart = computed(() => !isEnabled || isReady.value)
 const hasError = computed(() => errorMessage.value.length > 0)
 const { isPressing: isStartPressing, runPressAction } = useButtonPressAction()
+const backgroundImageUrl = publicAssetUrl('images/game.webp')
 
 const onStart = () => {
   if (!canStart.value) {
@@ -41,7 +43,10 @@ void preload().catch(() => {})
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-[url('/images/game.webp')] bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
+  <main
+    class="relative mx-auto flex h-dvh w-full max-w-md flex-col items-center justify-center overflow-hidden bg-cover bg-center px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white"
+    :style="{ backgroundImage: `url('${backgroundImageUrl}')` }"
+  >
     <div class="absolute inset-0 bg-stone-950/45" />
 
     <section class="relative z-10 flex w-full flex-col items-center text-center">

@@ -117,11 +117,17 @@ body {
   line-height: 1;
   color: #ce1126;
   letter-spacing: 0.02em;
-  -webkit-text-stroke: 8px #ffd230;
-  paint-order: stroke fill;
-  /*text-shadow:
-    0 6px 14px rgba(142, 18, 38, 0.32),
-    0 2px 0 #8e1226;*/
+  
+  text-shadow:
+    -2px -2px 0 #ffd230,
+     2px -2px 0 #ffd230,
+    -2px  2px 0 #ffd230,
+     2px  2px 0 #ffd230,
+     0px -2px 0 #ffd230,
+     0px  2px 0 #ffd230,
+    -2px  0px 0 #ffd230,
+     2px  0px 0 #ffd230;
+
   animation: scorePopFloat 0.6s ease-out forwards;
   will-change: transform, opacity;
 }
@@ -145,7 +151,7 @@ body {
 .heart-sprite {
   height: 1.175rem;
   width: 1.3rem;
-  background-image: url('/images/heart_sprite.webp');
+  background-image: var(--heart-sprite-url);
   background-repeat: no-repeat;
   background-size: 200% 100%;
   background-position: 0 0;
@@ -278,12 +284,16 @@ body {
 }
 
 .level-intro-warning p:last-child {
-  -webkit-text-stroke: 16px #ffd230;
-  paint-order: stroke fill;
+  text-shadow:
+    -4px -4px 0 #ffd230,
+     4px -4px 0 #ffd230,
+    -4px  4px 0 #ffd230,
+     4px  4px 0 #ffd230,
+     0px -4px 0 #ffd230,
+     0px  4px 0 #ffd230,
+    -4px  0px 0 #ffd230,
+     4px  0px 0 #ffd230;
   text-transform: uppercase;
-  /*text-shadow:
-    0 8px 18px rgba(142, 18, 38, 0.4),
-    0 2px 0 #8e1226;*/
 }
 
 .level-intro-level {

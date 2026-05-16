@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import ExitButton from '@/components/ExitButton.vue'
 import { GAME_CONFIG } from '@/core/config'
 import type { GameProgress } from '@/core/progressStorage'
+import { publicAssetUrl } from '@/utils/publicAssetUrl'
 
 const props = defineProps<{
   progress: GameProgress
@@ -32,6 +33,7 @@ const levels = computed(() =>
     }
   })
 )
+const backgroundImageUrl = publicAssetUrl('images/game.webp')
 
 const onSelectLevel = (level: number, isUnlocked: boolean) => {
   if (!isUnlocked) {
@@ -43,7 +45,10 @@ const onSelectLevel = (level: number, isUnlocked: boolean) => {
 </script>
 
 <template>
-  <main class="relative mx-auto flex h-dvh w-full max-w-md flex-col justify-center overflow-hidden bg-[url('/images/game.webp')] bg-cover bg-center px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white">
+  <main
+    class="relative mx-auto flex h-dvh w-full max-w-md flex-col justify-center overflow-hidden bg-cover bg-center px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-white"
+    :style="{ backgroundImage: `url('${backgroundImageUrl}')` }"
+  >
     <div class="absolute inset-0 bg-stone-950/50" />
 
     <section class="relative z-10 px-2 py-8">
