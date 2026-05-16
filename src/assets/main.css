@@ -151,7 +151,6 @@ body {
 .heart-sprite {
   height: 1.175rem;
   width: 1.3rem;
-  background-image: var(--heart-sprite-url);
   background-repeat: no-repeat;
   background-size: 200% 100%;
   background-position: 0 0;

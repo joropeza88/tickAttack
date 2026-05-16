@@ -16,6 +16,9 @@ const losingHeartSlots = ref<number[]>([])
 const losingHeartTimers = new Map<number, ReturnType<typeof setTimeout>>()
 const heartSpriteUrl = publicAssetUrl('images/heart_sprite.webp')
 const abilityImageUrl = publicAssetUrl('images/raid.webp')
+const heartSpriteStyle = {
+  backgroundImage: `url('${heartSpriteUrl}')`
+}
 
 const triggerLostHeart = (slot: number) => {
   const existingTimer = losingHeartTimers.get(slot)
@@ -91,7 +94,7 @@ defineEmits<{
           :key="slot"
           class="heart-sprite"
           :class="heartSpriteClass(slot)"
-          :style="{ '--heart-sprite-url': `url('${heartSpriteUrl}')` }"
+          :style="heartSpriteStyle"
         />
       </div>
     </div>
